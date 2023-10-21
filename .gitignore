@@ -34,9 +34,6 @@
 # VS_folder
 .vs/
 
-# Exe_files
-x64/
-
 #DLL file
 !x64/Debug/ConsoleLib.dll
 
