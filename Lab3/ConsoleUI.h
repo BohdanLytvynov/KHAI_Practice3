@@ -143,6 +143,8 @@ namespace UIControls
 	{
 	private:
 
+		bool m_visibility;//Controls UI Element Visisbility
+
 		string m_Content;//Content of UI Element
 
 		std::string m_Name;//Name of the Current UI Element
@@ -151,9 +153,7 @@ namespace UIControls
 
 		long int m_Id;//Id of the Current UI Element
 
-		Vector2D m_position;//Position of the control with respect to global coords
-		
-		vector<UIControl> m_Children;
+		Vector2D m_position;//Position of the control with respect to global coords				
 
 	public:
 
@@ -205,6 +205,36 @@ namespace UIControls
 
 	};
 		
+	class Panel : public UIControl
+	{
+		private:
+			vector<UIControl*> m_Children;
+
+
+		public:
+
+#pragma region Ctors
+			Panel();
+
+			Panel(const string& name, Vector2D position, const string& content);
+#pragma endregion
+
+#pragma region Getters
+			const UIControl* GetChildren(unsigned int& size)const;
+			
+			const UIControl& GetChild(const long int& Id)const;
+					
+
+#pragma endregion
+
+#pragma region Setters
+
+#pragma endregion
+
+
+
+	};
+
 	class Button : public UIControl
 	{
 	private:

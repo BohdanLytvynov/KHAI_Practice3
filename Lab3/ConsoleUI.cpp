@@ -173,27 +173,6 @@ string UIControl::GetName()const
 	return m_Name;
 }
 
-const UIControl* UIControl::GetChildren(unsigned int& size)const
-{
-	size = m_Children.size();
-
-	return &m_Children[0];
-}
-
-const UIControl& UIControl::GetChild(const long int& Id)const
-{
-	for (UIControl c : m_Children)	
-		if (c.GetId() == Id)
-			return c;	
-}
-
-const UIControl& UIControl::GetChild(const string& name)const
-{	
-	for (UIControl c : m_Children)
-		if (c.GetName() == name)
-			return c;
-}
-
 const long int & UIControl::GetId()const
 {
 	return m_Id;
@@ -213,58 +192,6 @@ void UIControl::SetPosition(Vector2D& newPosition)
 	m_position = newPosition;
 }
 
-void UIControl::AddChild(UIControl& child)
-{	
-	m_Children.push_back(child);
-}
-
-void UIControl::EditChild(const long int& childId, UIControl newChild)
-{
-	for (auto c : m_Children)
-	{
-		if (c.GetId() == childId)
-			c = newChild;
-	}
-}
-
-void UIControl::EditChild(const string& elemName, UIControl newChild)
-{
-	for (auto c : m_Children)
-	{
-		if (c.GetName() == elemName)
-			c = newChild;
-	}
-}
-
-void UIControl::RemoveChild(const long int& childId)
-{	
-	size_t size = m_Children.size();
-
-	size_t pos = -1;
-
-	for (size_t i = 0; i < size; ++i)
-	{
-		pos = m_Children[i].GetId() == childId ? i : -1;
-	}
-
-	if (pos != -1)
-		m_Children.erase(m_Children.begin() + pos);
-}
-
-void UIControl::RemoveChild(const string& elemName)
-{
-	size_t size = m_Children.size();
-
-	size_t pos = -1;
-
-	for (size_t i = 0; i < size; ++i)
-	{
-		pos = m_Children[i].GetName() == elemName ? i : -1;
-	}
-
-	if (pos != -1)
-		m_Children.erase(m_Children.begin() + pos);
-}
 
 void UIControl::SetContent(const string newContent)
 {
@@ -336,6 +263,98 @@ void Button::Render()const
 #pragma region Static definitions
 
 long int UIControls::UIControl::m_Idlast = 0;
+
+#pragma endregion
+
+#pragma region Panel
+
+#pragma region ctors
+
+#pragma endregion
+
+#pragma region Getters
+const UIControl* Panel::GetChildren(unsigned int& size)const
+{
+	size = m_Children.size();
+
+	return &m_Children[0];
+}
+
+const UIControl& Panel::GetChild(const long int& Id)const
+{
+	for (UIControl c : m_Children)
+		if (c.GetId() == Id)
+			return c;
+}
+
+const UIControl& Panel::GetChild(const string& name)const
+{
+	for (UIControl c : m_Children)
+		if (c.GetName() == name)
+			return c;
+}
+#pragma endregion
+
+#pragma region Setters
+
+void Panel::AddChild(UIControl& child)
+{
+	m_Children.push_back(child);
+}
+
+void Panel::EditChild(const long int& childId, UIControl newChild)
+{
+	for (auto c : m_Children)
+	{
+		if (c.GetId() == childId)
+			c = newChild;
+	}
+}
+
+void Panel::EditChild(const string& elemName, UIControl newChild)
+{
+	for (auto c : m_Children)
+	{
+		if (c.GetName() == elemName)
+			c = newChild;
+	}
+}
+
+void Panel::RemoveChild(const long int& childId)
+{
+	size_t size = m_Children.size();
+
+	size_t pos = -1;
+
+	for (size_t i = 0; i < size; ++i)
+	{
+		pos = m_Children[i].GetId() == childId ? i : -1;
+	}
+
+	if (pos != -1)
+		m_Children.erase(m_Children.begin() + pos);
+}
+
+void Panel::RemoveChild(const string& elemName)
+{
+	size_t size = m_Children.size();
+
+	size_t pos = -1;
+
+	for (size_t i = 0; i < size; ++i)
+	{
+		pos = m_Children[i].GetName() == elemName ? i : -1;
+	}
+
+	if (pos != -1)
+		m_Children.erase(m_Children.begin() + pos);
+}
+
+
+#pragma endregion
+
+
+
 
 #pragma endregion
 
