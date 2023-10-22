@@ -5,6 +5,7 @@
 #include"Console.h"
 #include"VectorMath.h"
 
+
 using namespace std;
 
 using namespace VectorMath;
@@ -110,15 +111,51 @@ namespace UIControls
 
 #pragma endregion
 
+#pragma region Setters
+
+		void SetWidth(UShort width);
+
+		void SetHeight(UShort height);
+
+		void SetMinWidth(UShort minWidth);
+
+		void SetMinHeight(UShort minHeight);
+
+		void GetMaxWidth(UShort maxWidth);
+
+		void GetMaxHeight(UShort maxHeight);
+
+#pragma endregion
+
 
 	};
 
-	class ButtonStyle : public Style
+	class UIContentStyle
 	{
 	private:
 		WORD m_Foreground;
 
 		Vector2D m_ContentPosition;
+
+		virtual void Abs() = 0;
+	public:
+#pragma region Ctor
+		UIContentStyle(Vector2D contentPosition, WORD contentForeground);
+#pragma endregion
+
+#pragma region Getters
+
+		WORD GetForeground()const;
+
+		Vector2D GetContentPosition()const;
+
+#pragma endregion
+
+	};
+
+	class ButtonStyle : public Style, public UIContentStyle
+	{
+	private:
 
 		void Abs() override {}
 	public:
@@ -134,23 +171,15 @@ namespace UIControls
 
 #pragma endregion
 
-#pragma region Getters
-
-		WORD GetForeground()const;
-
-		Vector2D GetContentPosition()const;
-
-#pragma endregion
-
-
 	};
 
-	class PanelStyle : public Style
+	class PanelStyle : public Style, public UIContentStyle
 	{
 	private:
-		Vector2D m_HeaderPosition;
-
+		
 		Vector2D m_ChildPostion;
+
+		UShort m_Interval;
 
 		void Abs() override {}
 
@@ -159,22 +188,22 @@ namespace UIControls
 #pragma region Ctors
 				
 		PanelStyle(const string name, UShort width, UShort height,
-			Vector2D ChildsPosition,
+			Vector2D ChildsPosition, 
 			Vector2D HeaderPos = Vector2D(1, 1),
+			UShort interval = 1,
 			WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack,
 			WORD backColor = Colors::WhiteBack,
-			WORD Foreground = Colors::BLACKBack | Colors::White,
+			WORD HeaderForeground = Colors::BLACKBack | Colors::White,
 			UShort minWidth = 0,
 			UShort minHeight = 0, UShort maxWidth = 0, UShort maxHeight = 0);
 
 #pragma endregion
 
-
 #pragma region Getters
 
-		Vector2D GetHeaderPosition()const;
-
 		Vector2D GetChildPosition()const;
+
+		UShort GetInterval()const;
 
 #pragma endregion
 
@@ -187,6 +216,8 @@ namespace UIControls
 	class UIControl
 	{
 	private:
+
+		Style *m_stylePtr;//Ptr to current style
 
 		bool m_visibility;//Controls UI Element Visisbility
 
@@ -204,7 +235,8 @@ namespace UIControls
 
 #pragma region Ctors
 				
-		UIControl(const string &name, Vector2D position, const string &content, bool visibility);
+		UIControl(const string &name, Vector2D position, const string &content, bool visibility
+			);
 
 #pragma endregion
 
@@ -225,6 +257,10 @@ namespace UIControls
 		const long int & GetId()const;
 
 		string GetContent() const;
+
+		Style* GetStylePtr();
+
+		void SetStylePtr(Style* ptr);
 
 #pragma endregion
 
@@ -265,12 +301,12 @@ namespace UIControls
 			Panel();
 
 			Panel(const string& name, Vector2D position, PanelStyle style, 
-				const string& content,
+				const string& header,
 				bool visibility);
 #pragma endregion
 
 #pragma region Getters
-			PanelStyle GetStyle()const;
+			PanelStyle GetStyle()const;			
 #pragma endregion
 
 #pragma region Setters
@@ -327,6 +363,7 @@ namespace UIControls
 
 #pragma region Getters
 		ButtonStyle GetStyle()const;
+
 #pragma endregion
 
 #pragma region Setters

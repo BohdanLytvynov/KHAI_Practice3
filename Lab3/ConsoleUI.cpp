@@ -42,6 +42,33 @@ WORD UIControls::Colors::ORANGEBack = BACKGROUND_RED | BACKGROUND_GREEN;
 
 #pragma region Styles definitions
 
+#pragma region UIContentStyle definition
+
+#pragma region Ctor
+
+UIContentStyle::UIContentStyle(Vector2D contentPosition, WORD contentForeground)
+	: m_ContentPosition(contentPosition), m_Foreground(contentForeground) {}
+
+#pragma endregion
+
+#pragma region Getters
+
+WORD UIContentStyle::GetForeground()const
+{
+	return m_Foreground;
+}
+
+Vector2D UIContentStyle::GetContentPosition()const
+{
+	return m_ContentPosition;
+}
+
+#pragma endregion
+
+
+#pragma endregion
+
+
 #pragma region Style
 
 #pragma region Ctor
@@ -105,6 +132,41 @@ UShort Style::GetMaxHeight() const
 
 #pragma endregion
 
+#pragma region Setters
+
+void Style::SetWidth(UShort width)
+{
+	m_width = width;
+}
+
+void Style::SetHeight(UShort height)
+{
+	m_height = height;
+}
+
+void Style::SetMinWidth(UShort minWidth)
+{
+	m_minWidth = minWidth;
+}
+
+void Style::SetMinHeight(UShort minHeight)
+{
+	m_minHeight = minHeight;
+}
+
+void Style::GetMaxWidth(UShort maxWidth)
+{
+	m_maxWidth = maxWidth;
+}
+
+void Style::GetMaxHeight(UShort maxHeight)
+{
+	m_maxHeight = maxHeight;
+}
+
+#pragma endregion
+
+
 #pragma endregion
 
 #pragma region ButtonStyle
@@ -121,25 +183,10 @@ ButtonStyle::ButtonStyle(
 	UShort minHeight, UShort maxWidth, UShort maxHeight
 	) : 
 	Style(name, width, height, brdColor, backColor, minWidth, minHeight, maxWidth, maxHeight),
-	m_Foreground(Foreground),
-	m_ContentPosition(contentPos)
+	UIContentStyle(contentPos, Foreground)
 	
 {
 
-}
-
-#pragma endregion
-
-#pragma region Getters
-
-WORD ButtonStyle::GetForeground()const
-{
-	return m_Foreground;
-}
-
-Vector2D ButtonStyle::GetContentPosition()const
-{
-	return m_ContentPosition;
 }
 
 #pragma endregion
@@ -153,30 +200,30 @@ PanelStyle::PanelStyle(
 	const string name, UShort width, UShort height,
 	Vector2D ChildsPosition,
 	Vector2D HeaderPos,
+	UShort interval,
 	WORD brdColor,
 	WORD backColor,
 	WORD Foreground,
 	UShort minWidth,
 	UShort minHeight, UShort maxWidth, UShort maxHeight
-) : m_ChildPostion(ChildsPosition), m_HeaderPosition(HeaderPos),
+) : 
 Style(name, width, height, brdColor, backColor, minWidth, minHeight
-	, maxWidth, maxHeight)
+	,maxWidth, maxHeight), UIContentStyle(HeaderPos, Foreground),
+	m_ChildPostion(ChildsPosition), m_Interval(interval)
 {}
-
-
 
 #pragma endregion
 
 #pragma region Getters
 
+UShort PanelStyle::GetInterval()const
+{
+	return m_Interval;
+}
+
 Vector2D PanelStyle::GetChildPosition()const
 {
 	return m_ChildPostion;
-}
-
-Vector2D PanelStyle::GetHeaderPosition()const
-{
-	return m_HeaderPosition;
 }
 
 #pragma endregion
@@ -196,16 +243,21 @@ Vector2D PanelStyle::GetHeaderPosition()const
 
 UIControl::UIControl(const string& name, Vector2D position,const string &content,
 	bool visibility) :
-	m_Name(name), m_position(position), m_Content(content), m_visibility(visibility)
+	m_Name(name), m_position(position), m_Content(content), m_visibility(visibility)	
 {
 	m_Idlast++;
 
-	m_Id = m_Idlast;
+	m_Id = m_Idlast;	
 }
 
 #pragma endregion
 
 #pragma region Getters
+
+Style* UIControl::GetStylePtr()
+{
+	return m_stylePtr;
+}
 
 bool UIControl::GetVisibility()const
 {
@@ -235,6 +287,11 @@ string UIControl::GetContent()const
 #pragma endregion
 
 #pragma region Setters
+
+void UIControl::SetStylePtr(Style *ptr)
+{
+	m_stylePtr = ptr;
+}
 
 void UIControl::SetVisibility(bool& visibility)
 {
@@ -267,7 +324,10 @@ void UIControl::SetContent(const string newContent)
 
 Button::Button(const string& name, Vector2D position, ButtonStyle style, const string& content,
 	bool visibility)
-	: UIControl::UIControl(name, position, content, visibility), m_style(style) {}
+	: UIControl::UIControl(name, position, content, visibility), m_style(style) 
+{
+	this->SetStylePtr(&m_style);
+}
 
 #pragma endregion
 
@@ -276,6 +336,7 @@ ButtonStyle Button::GetStyle()const
 {
 	return m_style;
 }
+
 #pragma endregion
 
 #pragma region Seters
@@ -322,7 +383,10 @@ long int UIControls::UIControl::m_Idlast = 0;
 
 Panel::Panel(const string& name, Vector2D position, PanelStyle style, const string& content,
 	bool visibility) 
-	:UIControl(name, position, content, visibility), m_style(style) {}
+	:UIControl(name, position, content, visibility), m_style(style) 
+{
+	SetStylePtr(&m_style);
+}
 
 #pragma endregion
 
@@ -427,7 +491,39 @@ void Panel::RemoveChild(const string& elemName)
 
 void Panel::Render() const
 {
+	PanelStyle style = this->GetStyle();
+
+	Vector2D Globpos = this->GetPosition();
+
+	ConsoleGraphics::DrawRect(Globpos[0], Globpos[1], style.GetWidth(),
+		style.GetHeight(), style.GetBrdColor(), style.GetBackColor());
 	
+	Vector2D calcHeaderPos = Globpos + style.GetContentPosition();
+
+	ConsoleFuncs::SetCursorPosition(calcHeaderPos[0], calcHeaderPos[1]);
+
+	ConsoleFuncs::PrintColorMsg(this->GetContent(), style.GetForeground());
+
+	Vector2D calcChildPos = Globpos + style.GetChildPosition();
+	
+	UShort height = 0;
+
+	for (UIControl* c : m_Children)
+	{
+		if (c->GetVisibility())
+		{
+			c->SetPosition(calcChildPos);
+									
+			c->GetStylePtr()->SetWidth(style.GetWidth() - style.GetChildPosition()[0] * 2);
+
+			c->Render();
+
+			calcChildPos += Vector2D(0, c->GetStylePtr()->GetHeight()/2 + style.GetInterval());
+		}
+	}
+
+	ConsoleFuncs::SetCursorPosition(0,0);
+			
 }
 
 #pragma endregion
