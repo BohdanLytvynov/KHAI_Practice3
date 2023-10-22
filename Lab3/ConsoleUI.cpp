@@ -441,7 +441,11 @@ void Panel::EditChild(const long int& childId, UIControl *newChild)
 	for (auto c : m_Children)
 	{
 		if (c->GetId() == childId)
-			c = newChild;
+		{
+			*c = *newChild;
+			break;
+		}
+		
 	}
 }
 
@@ -450,7 +454,11 @@ void Panel::EditChild(const string& elemName, UIControl *newChild)
 	for (auto c : m_Children)
 	{
 		if (c->GetName() == elemName)
-			c = newChild;
+		{
+			*c = *newChild;
+			break;
+		}
+			
 	}
 }
 
@@ -462,7 +470,11 @@ void Panel::RemoveChild(const long int& childId)
 
 	for (size_t i = 0; i < size; ++i)
 	{
-		pos = m_Children[i]->GetId() == childId ? i : -1;
+		if (m_Children[i]->GetId() == childId)
+		{
+			pos = i;
+			break;
+		}
 	}
 
 	if (pos != -1)
@@ -477,7 +489,11 @@ void Panel::RemoveChild(const string& elemName)
 
 	for (size_t i = 0; i < size; ++i)
 	{
-		pos = m_Children[i]->GetName() == elemName ? i : -1;
+		if (m_Children[i]->GetName() == elemName)
+		{
+			pos = i;
+			break;
+		}
 	}
 
 	if (pos != -1)
@@ -582,22 +598,64 @@ void ConsoleUIController::AddUIControl(UIControls::UIControl *newChild)
 
 void ConsoleUIController::EditUIControl(const long int& childId, UIControl *newChild)
 {
-
+	for (auto c : m_WindowControlls)
+	{
+		if (c->GetId() == childId)
+		{
+			*c = *newChild;
+		}
+	}
 }
 
 void ConsoleUIController::EditUIControl(const string& elemName, UIControl *newChild)
 {
-
+	for (auto c : m_WindowControlls)
+	{
+		if (c->GetName() == elemName)
+		{
+			*c = *newChild;
+		}
+	}
 }
 
 void ConsoleUIController::RemoveUIControl(const long int& childId)
 {
+	size_t pos = -1;
 
+	size_t size = m_WindowControlls.size();
+
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (m_WindowControlls[i]->GetId() == childId)
+		{
+			pos = i;
+			break;
+		}
+
+		if (pos != -1)
+			m_WindowControlls.erase(m_WindowControlls.begin() + pos);
+
+	}
 }
 
 void ConsoleUIController::RemoveUIControl(const string& elemName)
 {
+	size_t pos = -1;
 
+	size_t size = m_WindowControlls.size();
+
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (m_WindowControlls[i]->GetName() == elemName)
+		{
+			pos = i;
+			break;
+		}
+
+		if (pos != -1)
+			m_WindowControlls.erase(m_WindowControlls.begin() + pos);
+
+	}
 }
 
 #pragma endregion
