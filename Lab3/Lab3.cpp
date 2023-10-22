@@ -14,18 +14,16 @@ int main()
     auto console = GetStdHandle(STD_OUTPUT_HANDLE);
 
     ConsoleUIController* const controller = ConsoleUIController::Initialize(console);
+    
+    ButtonStyle bs("Button1", 30, 7, Vector2D(11, 1));
 
-    ButtonStyle bs("Button1", Colors::ORANGEBack |
-        Colors::BLUE, Colors::BLUEBack, 30, 10, 0,0,0,0,
-        Colors::BLACKBack | Colors::White, Vector2D(11,2));
+    Button b1("NGButton", Vector2D(4,8), bs, "New Game", true);
 
-    Button b1("NGButton", Vector2D(43,15), bs, "New Game");
+    Button b2("LoadButton", Vector2D(2, 2), bs, "Load Game",true);
 
-    Button b2("LoadButton", Vector2D(2, 2), bs, "Load Game");
+    Button b3("SettingsButton", Vector2D(2, 2), bs, "Settings",true);
 
-    Button b3("SettingsButton", Vector2D(2, 2), bs, "Settings");
-
-    Button b4("ExitButton", Vector2D(2, 2), bs, "Quite");
+    Button b4("ExitButton", Vector2D(2, 2), bs, "Quite", true);
 
     controller->AddUIControl(&b1);
     /*controller->AddUICOntrol(b2);

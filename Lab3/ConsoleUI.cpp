@@ -18,17 +18,21 @@ WORD UIControls::Colors::BLACK = 0;
 
 WORD UIControls::Colors::GREY = FOREGROUND_INTENSITY;
 
+WORD UIControls::Colors::LIGHTGRAY = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+
 WORD UIControls::Colors::BLUE = FOREGROUND_BLUE;
 
 WORD UIControls::Colors::ORANGE = FOREGROUND_RED | FOREGROUND_GREEN;
 
-WORD UIControls::Colors::WhiteBack = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE |
+WORD UIControls::Colors::WhiteBack = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE |
 
-FOREGROUND_INTENSITY;
+BACKGROUND_INTENSITY;
 
 WORD UIControls::Colors::BLACKBack = 0;
 
 WORD UIControls::Colors::GREYBack = BACKGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTGRAYBack = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
 
 WORD UIControls::Colors::BLUEBack = BACKGROUND_BLUE;
 
@@ -42,15 +46,13 @@ WORD UIControls::Colors::ORANGEBack = BACKGROUND_RED | BACKGROUND_GREEN;
 
 #pragma region Ctor
 
-Style::Style() : m_BorderColor(Colors::GREY), m_BackGroundColor(Colors::White), m_width(0),
-m_height(0), m_minWidth(0), m_maxWidth(0), m_minHeight(0), m_maxHeight(0) {}
-
-Style::Style(const string name, WORD brdColor, WORD backColor, UShort width, UShort height, UShort minWidth,
-	UShort minHeight, UShort maxWidth, UShort maxHeight) :
-	m_Name(name),
-	m_BorderColor(brdColor), m_BackGroundColor(backColor), m_width(width),
-	m_height(height), m_minWidth(minWidth), m_maxWidth(maxWidth), m_minHeight(minHeight),
-	m_maxHeight(maxHeight) {}
+Style::Style(const string name, UShort width, UShort height, WORD brdColor, WORD backColor, 
+	UShort minWidth,
+	UShort minHeight, UShort maxWidth, UShort maxHeight):
+	m_Name(name), m_width(width), m_height(height), m_BorderColor(brdColor),
+	m_BackGroundColor(backColor), m_minWidth(minWidth), m_minHeight(minHeight),
+	m_maxWidth(maxWidth), m_maxHeight(maxHeight)
+{}
 
 #pragma endregion
 
@@ -109,13 +111,19 @@ UShort Style::GetMaxHeight() const
 
 #pragma region Ctor
 
-ButtonStyle::ButtonStyle() : m_Foreground(Colors::BLACK), Style() {}
-
-ButtonStyle::ButtonStyle(string name, WORD brdColor, WORD backColor, UShort width, UShort height, UShort minWidth,
-	UShort minHeight, UShort maxWidth, UShort maxHeight, WORD Foreground, Vector2D contentPos) : m_Foreground(Foreground), 
-	m_ContentPosition(contentPos),
-	Style(name, brdColor, backColor, width, height, minWidth, minHeight, maxWidth, maxHeight)
-		
+ButtonStyle::ButtonStyle(
+	const string name, UShort width, UShort height,
+	Vector2D contentPos,
+    WORD brdColor, 
+	WORD backColor, 
+	WORD Foreground,	
+	UShort minWidth,
+	UShort minHeight, UShort maxWidth, UShort maxHeight
+	) : 
+	Style(name, width, height, brdColor, backColor, minWidth, minHeight, maxWidth, maxHeight),
+	m_Foreground(Foreground),
+	m_ContentPosition(contentPos)
+	
 {
 
 }
@@ -138,6 +146,43 @@ Vector2D ButtonStyle::GetContentPosition()const
 
 #pragma endregion
 
+#pragma region PanelStyle
+#pragma region Ctor
+
+PanelStyle::PanelStyle(
+	const string name, UShort width, UShort height,
+	Vector2D ChildsPosition,
+	Vector2D HeaderPos,
+	WORD brdColor,
+	WORD backColor,
+	WORD Foreground,
+	UShort minWidth,
+	UShort minHeight, UShort maxWidth, UShort maxHeight
+) : m_ChildPostion(ChildsPosition), m_HeaderPosition(HeaderPos),
+Style(name, width, height, brdColor, backColor, minWidth, minHeight
+	, maxWidth, maxHeight)
+{}
+
+
+
+#pragma endregion
+
+#pragma region Getters
+
+Vector2D PanelStyle::GetChildPosition()const
+{
+	return m_ChildPostion;
+}
+
+Vector2D PanelStyle::GetHeaderPosition()const
+{
+	return m_HeaderPosition;
+}
+
+#pragma endregion
+
+
+#pragma endregion
 
 
 
@@ -149,10 +194,9 @@ Vector2D ButtonStyle::GetContentPosition()const
 
 #pragma region Ctors
 
-UIControl::UIControl(): UIControl("", Vector2D(), "") {}
-
-UIControl::UIControl(const string& name, Vector2D position,const string &content) :
-	m_Name(name), m_position(position), m_Content(content)
+UIControl::UIControl(const string& name, Vector2D position,const string &content,
+	bool visibility) :
+	m_Name(name), m_position(position), m_Content(content), m_visibility(visibility)
 {
 	m_Idlast++;
 
@@ -162,6 +206,11 @@ UIControl::UIControl(const string& name, Vector2D position,const string &content
 #pragma endregion
 
 #pragma region Getters
+
+bool UIControl::GetVisibility()const
+{
+	return m_visibility;
+}
 
 Vector2D UIControl::GetPosition() const
 {
@@ -187,6 +236,11 @@ string UIControl::GetContent()const
 
 #pragma region Setters
 
+void UIControl::SetVisibility(bool& visibility)
+{
+	m_visibility = visibility;
+}
+
 void UIControl::SetPosition(Vector2D& newPosition)
 {
 	m_position = newPosition;
@@ -201,10 +255,7 @@ void UIControl::SetContent(const string newContent)
 #pragma endregion
 
 #pragma region Functions
-void UIControl::Render()const
-{
-	throw runtime_error("UIControl is an abstract class!!! You are not allowed to use it!!! Cause it is undetermined type! Use in UIController only determined types!");
-}
+
 #pragma endregion
 
 
@@ -214,10 +265,9 @@ void UIControl::Render()const
 
 #pragma region Ctors
 
-Button::Button() {}
-
-Button::Button(const string& name, Vector2D position, ButtonStyle style, const string& content)
-	: UIControl::UIControl(name, position, content), m_style(style) {}
+Button::Button(const string& name, Vector2D position, ButtonStyle style, const string& content,
+	bool visibility)
+	: UIControl::UIControl(name, position, content, visibility), m_style(style) {}
 
 #pragma endregion
 
@@ -270,52 +320,72 @@ long int UIControls::UIControl::m_Idlast = 0;
 
 #pragma region ctors
 
+Panel::Panel(const string& name, Vector2D position, PanelStyle style, const string& content,
+	bool visibility) 
+	:UIControl(name, position, content, visibility), m_style(style) {}
+
 #pragma endregion
 
 #pragma region Getters
-const UIControl* Panel::GetChildren(unsigned int& size)const
-{
-	size = m_Children.size();
 
-	return &m_Children[0];
+PanelStyle Panel::GetStyle()const
+{
+	return m_style;
 }
 
-const UIControl& Panel::GetChild(const long int& Id)const
-{
-	for (UIControl c : m_Children)
-		if (c.GetId() == Id)
-			return c;
-}
-
-const UIControl& Panel::GetChild(const string& name)const
-{
-	for (UIControl c : m_Children)
-		if (c.GetName() == name)
-			return c;
-}
 #pragma endregion
 
 #pragma region Setters
 
-void Panel::AddChild(UIControl& child)
+void Panel::SetStyle(PanelStyle &style)
+{
+	m_style = style;
+}
+
+#pragma endregion
+
+#pragma region CRUD Functions
+
+const UIControl* Panel::GetChildren(unsigned int& size)const
+{
+	size = m_Children.size();
+
+	return m_Children[0];
+}
+
+const UIControl& Panel::GetChild(const long int& Id)const
+{
+	for (auto c : m_Children)
+		if (c->GetId() == Id)
+			return *c;
+}
+
+const UIControl* Panel::GetChild(const string& name)const
+{
+	for (auto c : m_Children)
+		if (c->GetName() == name)
+			return c;
+}
+
+void Panel::AddChild(UIControl* child)
 {
 	m_Children.push_back(child);
 }
 
-void Panel::EditChild(const long int& childId, UIControl newChild)
+void Panel::EditChild(const long int& childId, UIControl *newChild)
 {
 	for (auto c : m_Children)
 	{
-		if (c.GetId() == childId)
+		if (c->GetId() == childId)
 			c = newChild;
 	}
 }
 
-void Panel::EditChild(const string& elemName, UIControl newChild)
+void Panel::EditChild(const string& elemName, UIControl *newChild)
 {
 	for (auto c : m_Children)
 	{
-		if (c.GetName() == elemName)
+		if (c->GetName() == elemName)
 			c = newChild;
 	}
 }
@@ -328,7 +398,7 @@ void Panel::RemoveChild(const long int& childId)
 
 	for (size_t i = 0; i < size; ++i)
 	{
-		pos = m_Children[i].GetId() == childId ? i : -1;
+		pos = m_Children[i]->GetId() == childId ? i : -1;
 	}
 
 	if (pos != -1)
@@ -343,7 +413,7 @@ void Panel::RemoveChild(const string& elemName)
 
 	for (size_t i = 0; i < size; ++i)
 	{
-		pos = m_Children[i].GetName() == elemName ? i : -1;
+		pos = m_Children[i]->GetName() == elemName ? i : -1;
 	}
 
 	if (pos != -1)
@@ -353,6 +423,14 @@ void Panel::RemoveChild(const string& elemName)
 
 #pragma endregion
 
+#pragma region Functions
+
+void Panel::Render() const
+{
+	
+}
+
+#pragma endregion
 
 
 
@@ -397,6 +475,7 @@ ConsoleUIController* const ConsoleUIController::Initialize(HANDLE &console)
 void ConsoleUIController::Draw()
 {
 	for (auto c : m_WindowControlls)
+		if(c->GetVisibility())
 		c->Render();
 }
 
@@ -405,12 +484,12 @@ void ConsoleUIController::AddUIControl(UIControls::UIControl *newChild)
 	m_WindowControlls.push_back(newChild);
 }
 
-void ConsoleUIController::EditUIControl(const long int& childId, UIControl newChild)
+void ConsoleUIController::EditUIControl(const long int& childId, UIControl *newChild)
 {
 
 }
 
-void ConsoleUIController::EditUIControl(const string& elemName, UIControl newChild)
+void ConsoleUIController::EditUIControl(const string& elemName, UIControl *newChild)
 {
 
 }

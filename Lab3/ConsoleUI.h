@@ -27,6 +27,8 @@ namespace UIControls
 
 		static WORD GREY;
 
+		static WORD LIGHTGRAY;
+
 		static WORD BLUE;
 
 		static WORD ORANGE;
@@ -36,6 +38,8 @@ namespace UIControls
 		static WORD BLACKBack;
 
 		static WORD GREYBack;
+
+		static WORD LIGHTGRAYBack;
 
 		static WORD BLUEBack;
 
@@ -50,6 +54,8 @@ namespace UIControls
 	private:
 
 		string m_Name;
+
+		void virtual Abs() = 0;
 
 #pragma region Colors
 
@@ -76,10 +82,8 @@ namespace UIControls
 	public:
 
 #pragma region Ctor
-
-		Style();
-
-		Style(const string name, WORD brdColor, WORD backColor, UShort width, UShort height, UShort minWidth,
+		
+		Style(const string name, UShort width, UShort height, WORD brdColor, WORD backColor, UShort minWidth,
 			UShort minHeight, UShort maxWidth, UShort maxHeight);
 
 #pragma endregion
@@ -115,13 +119,18 @@ namespace UIControls
 		WORD m_Foreground;
 
 		Vector2D m_ContentPosition;
+
+		void Abs() override {}
 	public:
 #pragma region Ctor
-
-		ButtonStyle();
-
-		ButtonStyle(const string name, WORD brdColor, WORD backColor, UShort width, UShort height, UShort minWidth,
-			UShort minHeight, UShort maxWidth, UShort maxHeight, WORD Foreground, Vector2D contentPos);
+		
+		ButtonStyle(const string name, UShort width, UShort height,
+			Vector2D contentPos = Vector2D(1, 1),
+		    WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack,
+			WORD backColor = Colors::WhiteBack,
+			WORD Foreground = Colors::BLACKBack | Colors::White,			
+			UShort minWidth = 0,
+			UShort minHeight = 0, UShort maxWidth = 0, UShort maxHeight = 0);
 
 #pragma endregion
 
@@ -130,6 +139,42 @@ namespace UIControls
 		WORD GetForeground()const;
 
 		Vector2D GetContentPosition()const;
+
+#pragma endregion
+
+
+	};
+
+	class PanelStyle : public Style
+	{
+	private:
+		Vector2D m_HeaderPosition;
+
+		Vector2D m_ChildPostion;
+
+		void Abs() override {}
+
+	public:
+
+#pragma region Ctors
+				
+		PanelStyle(const string name, UShort width, UShort height,
+			Vector2D ChildsPosition,
+			Vector2D HeaderPos = Vector2D(1, 1),
+			WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack,
+			WORD backColor = Colors::WhiteBack,
+			WORD Foreground = Colors::BLACKBack | Colors::White,
+			UShort minWidth = 0,
+			UShort minHeight = 0, UShort maxWidth = 0, UShort maxHeight = 0);
+
+#pragma endregion
+
+
+#pragma region Getters
+
+		Vector2D GetHeaderPosition()const;
+
+		Vector2D GetChildPosition()const;
 
 #pragma endregion
 
@@ -158,14 +203,14 @@ namespace UIControls
 	public:
 
 #pragma region Ctors
-		
-		UIControl();
-
-		UIControl(const string &name, Vector2D position, const string &content);
+				
+		UIControl(const string &name, Vector2D position, const string &content, bool visibility);
 
 #pragma endregion
 
 #pragma region Getters
+
+		bool GetVisibility()const;
 
 		Vector2D GetPosition() const;
 
@@ -185,6 +230,8 @@ namespace UIControls
 
 #pragma region Setters
 
+		void SetVisibility(bool &newVisibility);
+
 		void SetPosition(Vector2D& newPosition);
 				
 		void AddChild(UIControl &child);
@@ -201,7 +248,7 @@ namespace UIControls
 
 #pragma endregion
 
-		virtual void Render() const;
+		virtual void Render() const = 0;
 
 	};
 		
@@ -210,24 +257,51 @@ namespace UIControls
 		private:
 			vector<UIControl*> m_Children;
 
-
+			PanelStyle m_style;
+			
 		public:
 
 #pragma region Ctors
 			Panel();
 
-			Panel(const string& name, Vector2D position, const string& content);
+			Panel(const string& name, Vector2D position, PanelStyle style, 
+				const string& content,
+				bool visibility);
 #pragma endregion
 
 #pragma region Getters
-			const UIControl* GetChildren(unsigned int& size)const;
-			
-			const UIControl& GetChild(const long int& Id)const;
-					
-
+			PanelStyle GetStyle()const;
 #pragma endregion
 
 #pragma region Setters
+			void SetStyle(PanelStyle& newStyle);
+#pragma endregion
+
+
+
+#pragma region CRUD Functions
+			
+			const UIControl* GetChildren(unsigned int& size)const;
+			
+			const UIControl& GetChild(const long int& Id)const;
+
+			const UIControl* GetChild(const string& name)const;
+					
+			void AddChild(UIControl* child);
+
+			void EditChild(const long int& childId, UIControl *newChild);
+
+			void EditChild(const string& elemName, UIControl *newChild);
+
+			void RemoveChild(const long int& childId);
+
+			void RemoveChild(const string& elemName);
+
+#pragma endregion
+
+#pragma region Functions
+
+			void Render() const override;
 
 #pragma endregion
 
@@ -246,7 +320,8 @@ namespace UIControls
 
 		Button();
 
-		Button(const string& name, Vector2D position, ButtonStyle style, const string& content);
+		Button(const string& name, Vector2D position, ButtonStyle style, const string& content,
+			bool visibility);
 
 #pragma endregion
 
@@ -295,11 +370,11 @@ namespace ConsoleUI
 
 		void AddUIControl(UIControls::UIControl* newChild);
 
-		void EditUIControl(const long int& childId, UIControls::UIControl newChild);
+		void EditUIControl(const long int& childId, UIControls::UIControl *newChild);
 
 		void RemoveUIControl(const long int& childId);
 
-		void EditUIControl(const string& elemName, UIControls::UIControl newChild);
+		void EditUIControl(const string& elemName, UIControls::UIControl *newChild);
 
 		void RemoveUIControl(const string& elemName);
 		
