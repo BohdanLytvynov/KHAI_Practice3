@@ -22,7 +22,31 @@ WORD UIControls::Colors::LIGHTGRAY = FOREGROUND_RED | FOREGROUND_GREEN | FOREGRO
 
 WORD UIControls::Colors::BLUE = FOREGROUND_BLUE;
 
+WORD UIControls::Colors::GREEN = FOREGROUND_GREEN;
+
+WORD UIControls::Colors::CYAN = FOREGROUND_GREEN | FOREGROUND_BLUE;
+
+WORD UIControls::Colors::RED = FOREGROUND_RED;
+
+WORD UIControls::Colors::PURPLE = FOREGROUND_RED | FOREGROUND_BLUE;
+
+WORD UIControls::Colors::LIGHTBLUE = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTGREEN = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTCYAN = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTRED = FOREGROUND_RED | FOREGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTPURPLE = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+
+WORD UIControls::Colors::YELLOW = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+
 WORD UIControls::Colors::ORANGE = FOREGROUND_RED | FOREGROUND_GREEN;
+
+/// <summary>
+/// Background colors
+/// </summary>
 
 WORD UIControls::Colors::WhiteBack = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE |
 
@@ -35,6 +59,26 @@ WORD UIControls::Colors::GREYBack = BACKGROUND_INTENSITY;
 WORD UIControls::Colors::LIGHTGRAYBack = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
 
 WORD UIControls::Colors::BLUEBack = BACKGROUND_BLUE;
+
+WORD UIControls::Colors::GREENBack = BACKGROUND_GREEN;
+
+WORD UIControls::Colors::CYANBack = BACKGROUND_GREEN | BACKGROUND_BLUE;
+
+WORD UIControls::Colors::REDBack = BACKGROUND_RED;
+
+WORD UIControls::Colors::PURPLEBack = BACKGROUND_RED | BACKGROUND_BLUE;
+
+WORD UIControls::Colors::LIGHTBLUEBack = BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTGREENBack = BACKGROUND_GREEN | BACKGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTCYANBack = BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTREDBack = BACKGROUND_RED | BACKGROUND_INTENSITY;
+
+WORD UIControls::Colors::LIGHTPURPLEBack = BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+
+WORD UIControls::Colors::YELLOWBack = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY;
 
 WORD UIControls::Colors::ORANGEBack = BACKGROUND_RED | BACKGROUND_GREEN;
 
@@ -67,7 +111,6 @@ Vector2D UIContentStyle::GetContentPosition()const
 
 
 #pragma endregion
-
 
 #pragma region Style
 
@@ -231,7 +274,61 @@ Vector2D PanelStyle::GetChildPosition()const
 
 #pragma endregion
 
+#pragma region TextBlockSyle
 
+#pragma region Ctor
+TextBlockStyle::TextBlockStyle(const string name, UShort width, UShort height,
+	Vector2D contentPos,
+	WORD brdColor,
+	WORD backColor,
+	WORD Foreground,
+	UShort minWidth,
+	UShort minHeight, UShort maxWidth, UShort maxHeight) 
+	: Style(name, width, height, brdColor, backColor, minWidth, minHeight
+		, maxWidth, maxHeight), UIContentStyle(contentPos, Foreground)
+	
+{
+
+}
+#pragma endregion
+
+
+#pragma endregion
+
+#pragma region TableRowStyle
+
+#pragma region Ctor
+
+TableRowStyle::TableRowStyle(const string name, UShort width, UShort height, WORD brdColor,
+	WORD backColor, UShort minWidth,
+	UShort minHeight, UShort maxWidth, UShort maxHeight, UShort horOffset) :
+	m_HorOffset(horOffset),
+	Style(name, width, height, brdColor, backColor, minWidth, minHeight, maxWidth, maxHeight)
+{
+
+}
+
+#pragma endregion
+
+#pragma region Getters
+
+UShort TableRowStyle::GetHorOffset()const
+{
+	return m_HorOffset;
+}
+
+#pragma endregion
+
+#pragma region Setters
+
+void TableRowStyle::SetHorOffset(const UShort &horOffset)
+{
+	m_HorOffset = horOffset;
+}
+
+#pragma endregion
+
+#pragma endregion
 
 #pragma endregion
 
@@ -242,8 +339,9 @@ Vector2D PanelStyle::GetChildPosition()const
 #pragma region Ctors
 
 UIControl::UIControl(const string& name, Vector2D position,const string &content,
-	bool visibility) :
-	m_Name(name), m_position(position), m_Content(content), m_visibility(visibility)	
+	bool visibility, Style* style) :
+	m_Name(name), m_position(position), m_Content(content), m_visibility(visibility),
+	m_stylePtr(style)
 {
 	m_Idlast++;
 
@@ -311,11 +409,6 @@ void UIControl::SetContent(const string newContent)
 
 #pragma endregion
 
-#pragma region Functions
-
-#pragma endregion
-
-
 #pragma endregion
 
 #pragma region Button
@@ -324,45 +417,47 @@ void UIControl::SetContent(const string newContent)
 
 Button::Button(const string& name, Vector2D position, ButtonStyle style, const string& content,
 	bool visibility)
-	: UIControl::UIControl(name, position, content, visibility), m_style(style) 
+	: UIControl::UIControl(name, position, content, visibility, &style)
 {
-	this->SetStylePtr(&m_style);
+	
 }
 
 #pragma endregion
 
 #pragma region Getters
-ButtonStyle Button::GetStyle()const
+ButtonStyle* Button::GetStyle()
 {
-	return m_style;
+	return reinterpret_cast<ButtonStyle*>(UIControl::GetStylePtr());
 }
 
 #pragma endregion
 
 #pragma region Seters
-void Button::SetStyle(ButtonStyle style)
+void Button::SetStyle(ButtonStyle *style)
 {
-	m_style = style;
+	UIControl::SetStylePtr(style);
 }
 #pragma endregion
 
 
 
 #pragma region Functions
-void Button::Render()const
+void Button::Render()
 {	
 	auto v = GetPosition();
-
-	DrawRect(v[0], v[1], this->GetStyle().GetWidth(),
-		this->GetStyle().GetHeight(), GetStyle().GetBrdColor(), GetStyle().GetBackColor());
 	
-	auto pos = GetStyle().GetContentPosition();
+	auto style = this->GetStyle();
+
+	DrawRect(v[0], v[1], style->GetWidth(),
+		style->GetHeight(), style->GetBrdColor(), style->GetBackColor());
+	
+	auto pos = GetStyle()->GetContentPosition();
 		
 	auto cv = v + pos;
 
 	SetCursorPosition(cv[0], cv[1]);
 
-	PrintColorMsg(GetContent(), GetStyle().GetForeground());
+	PrintColorMsg(GetContent(), style->GetForeground());
 		
 	SetCursorPosition(0,0);
 }
@@ -383,27 +478,27 @@ long int UIControls::UIControl::m_Idlast = 0;
 
 Panel::Panel(const string& name, Vector2D position, PanelStyle style, const string& content,
 	bool visibility) 
-	:UIControl(name, position, content, visibility), m_style(style) 
+	:UIControl(name, position, content, visibility, &style)
 {
-	SetStylePtr(&m_style);
+
 }
 
 #pragma endregion
 
 #pragma region Getters
 
-PanelStyle Panel::GetStyle()const
+PanelStyle* Panel::GetStyle()
 {
-	return m_style;
+	return reinterpret_cast<PanelStyle*>(UIControl::GetStylePtr());
 }
 
 #pragma endregion
 
 #pragma region Setters
 
-void Panel::SetStyle(PanelStyle &style)
+void Panel::SetStyle(PanelStyle *style)
 {
-	m_style = style;
+	UIControl::SetStylePtr(style);
 }
 
 #pragma endregion
@@ -443,6 +538,7 @@ void Panel::EditChild(const long int& childId, UIControl *newChild)
 		if (c->GetId() == childId)
 		{
 			*c = *newChild;
+
 			break;
 		}
 		
@@ -456,6 +552,9 @@ void Panel::EditChild(const string& elemName, UIControl *newChild)
 		if (c->GetName() == elemName)
 		{
 			*c = *newChild;
+
+			c->SetStylePtr(newChild->GetStylePtr());
+
 			break;
 		}
 			
@@ -505,22 +604,22 @@ void Panel::RemoveChild(const string& elemName)
 
 #pragma region Functions
 
-void Panel::Render() const
+void Panel::Render()
 {
-	PanelStyle style = this->GetStyle();
+	PanelStyle *style = this->GetStyle();
 
 	Vector2D Globpos = this->GetPosition();
 
-	ConsoleGraphics::DrawRect(Globpos[0], Globpos[1], style.GetWidth(),
-		style.GetHeight(), style.GetBrdColor(), style.GetBackColor());
+	ConsoleGraphics::DrawRect(Globpos[0], Globpos[1], style->GetWidth(),
+		style->GetHeight(), style->GetBrdColor(), style->GetBackColor());
 	
-	Vector2D calcHeaderPos = Globpos + style.GetContentPosition();
+	Vector2D calcHeaderPos = Globpos + style->GetContentPosition();
 
 	ConsoleFuncs::SetCursorPosition(calcHeaderPos[0], calcHeaderPos[1]);
 
-	ConsoleFuncs::PrintColorMsg(this->GetContent(), style.GetForeground());
+	ConsoleFuncs::PrintColorMsg(this->GetContent(), style->GetForeground());
 
-	Vector2D calcChildPos = Globpos + style.GetChildPosition();
+	Vector2D calcChildPos = Globpos + style->GetChildPosition();
 	
 	UShort height = 0;
 
@@ -530,11 +629,11 @@ void Panel::Render() const
 		{
 			c->SetPosition(calcChildPos);
 									
-			c->GetStylePtr()->SetWidth(style.GetWidth() - style.GetChildPosition()[0] * 2);
+			c->GetStylePtr()->SetWidth(style->GetWidth() - style->GetChildPosition()[0] * 2);
 
 			c->Render();
 
-			calcChildPos += Vector2D(0, c->GetStylePtr()->GetHeight()/2 + style.GetInterval());
+			calcChildPos += Vector2D(0, c->GetStylePtr()->GetHeight()/2 + style->GetInterval());
 		}
 	}
 
@@ -548,21 +647,32 @@ void Panel::Render() const
 
 #pragma endregion
 
+#pragma region TextBlock
+
+#pragma region Ctor
+
+TextBlock::TextBlock(const string& name, Vector2D position, TextBlockStyle style, const string& content,
+	bool visibility) : UIControl(name, position, content, visibility, &style)
+{
+
+}
 
 #pragma endregion
 
-#pragma region ConsoleUI definitions
+#pragma region Getters
 
-#pragma region Ctors
-
-ConsoleUIController::ConsoleUIController(HANDLE &console)
+TextBlockStyle* TextBlock::GetStyle()
 {
-	ConsoleFuncs::Init(console);
+	return reinterpret_cast<TextBlockStyle*>(UIControl::GetStylePtr());
 }
 
-ConsoleUIController::~ConsoleUIController()
+#pragma endregion
+
+#pragma region Setters
+
+void TextBlock::SetStyle(TextBlockStyle *newStyle)
 {
-	delete m_instance;
+	UIControl::SetStylePtr(newStyle);
 }
 
 #pragma endregion
@@ -570,33 +680,134 @@ ConsoleUIController::~ConsoleUIController()
 
 #pragma region Functions
 
-#pragma region Initializatiion
-
-ConsoleUIController* const ConsoleUIController::Initialize(HANDLE &console)
+void TextBlock::Render()
 {
-	if (m_instance == nullptr)
-		m_instance = new ConsoleUIController(console);
+	auto v = GetPosition();
 
-	return m_instance;
+	auto style = this->GetStyle();
+
+	DrawRect(v[0], v[1], style->GetWidth(),
+		style->GetHeight(), style->GetBrdColor(), style->GetBackColor());
+
+	auto pos = GetStyle()->GetContentPosition();
+
+	auto cv = v + pos;
+
+	SetCursorPosition(cv[0], cv[1]);
+
+	PrintColorMsg(GetContent(), style->GetForeground());
+
+	SetCursorPosition(0, 0);
 }
 
 #pragma endregion
+
+
+
+#pragma endregion
+
+#pragma region TableRow
+
+#pragma region Ctor
+
+TableRow::TableRow(const string& name, Vector2D position, TableRowStyle style,
+	const string& content,
+	bool visibility) : UIControl(name, position, content, visibility, &style)
+{
+}
+
+#pragma endregion
+
+#pragma region CRUD Functions
+
+void TableRow::AddUIControl(UIControl* control)
+{
+	if (control == nullptr)
+		return;
+
+	m_Cells.push_back(control);	
+}
+
+void TableRow::RemoveUIControl(const string& elemName)
+{
+	if (elemName.empty())
+		return;
+
+	int index = -1;
+	size_t length = m_Cells.size();
+
+	for (size_t i = 0; i < length; i++)
+	{
+		if (m_Cells[i]->GetName() == elemName)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if(index != -1)
+		m_Cells.erase(m_Cells.begin() + index);
+}
+
+void TableRow::RemoveUIControl(const long int& id)
+{	
+	int index = -1;
+	size_t length = m_Cells.size();
+
+	for (size_t i = 0; i < length; i++)
+	{
+		if (m_Cells[i]->GetId() == id)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if (index != -1)
+		m_Cells.erase(m_Cells.begin() + index);
+}
+
+UIControl* TableRow::GetUIControls(size_t& size)
+{
+	size = m_Cells.size();
+
+	return m_Cells[0];
+}
+
+#pragma endregion
+
+#pragma region Functions
+
+void TableRow::Render()
+{
+
+}
+
+#pragma endregion
+
+
+#pragma endregion
+
+
+#pragma endregion
+
+#pragma region ConsoleUI definitions
 
 #pragma region Functions
 
 void ConsoleUIController::Draw()
 {
 	for (auto c : m_WindowControlls)
-		if(c->GetVisibility())
-		c->Render();
+		if (c->GetVisibility())
+			c->Render();
 }
 
-void ConsoleUIController::AddUIControl(UIControls::UIControl *newChild)
+void ConsoleUIController::AddUIControl(UIControls::UIControl* newChild)
 {
 	m_WindowControlls.push_back(newChild);
 }
 
-void ConsoleUIController::EditUIControl(const long int& childId, UIControl *newChild)
+void ConsoleUIController::EditUIControl(const long int& childId, UIControl* newChild)
 {
 	for (auto c : m_WindowControlls)
 	{
@@ -607,13 +818,15 @@ void ConsoleUIController::EditUIControl(const long int& childId, UIControl *newC
 	}
 }
 
-void ConsoleUIController::EditUIControl(const string& elemName, UIControl *newChild)
+void ConsoleUIController::EditUIControl(const string& elemName, UIControl* newChild)
 {
 	for (auto c : m_WindowControlls)
 	{
 		if (c->GetName() == elemName)
 		{
 			*c = *newChild;
+
+			break;
 		}
 	}
 }
@@ -658,7 +871,71 @@ void ConsoleUIController::RemoveUIControl(const string& elemName)
 	}
 }
 
+UIControl* ConsoleUIController::GetControls(size_t& size)
+{
+	size = m_WindowControlls.size();
+
+	return m_WindowControlls[0];
+}
+
 #pragma endregion
+
+#pragma region Ctors
+
+ConsoleUIController::ConsoleUIController(HANDLE &console)
+{
+	ConsoleFuncs::Init(console);
+}
+
+ConsoleUIController::~ConsoleUIController()
+{
+	if (m_instance != nullptr)
+	{
+		size_t size = 0;
+
+		UIControl* cntrl1 = m_instance->GetControls(size);
+
+		for (size_t i = 0; i < size; i++)
+		{
+			try
+			{
+				if((cntrl1 + i) != nullptr)
+					delete (cntrl1 + i);//Try to release resources if Heap was used to store UIControls
+			}
+			catch (const std::exception&)
+			{
+			}			
+		}
+
+		delete m_instance;
+	}
+
+	
+}
+
+void ConsoleUIController::Dispose()
+{	
+	m_instance->~ConsoleUIController();
+}
+
+#pragma endregion
+
+
+#pragma region Functions
+
+#pragma region Initializatiion
+
+ConsoleUIController* const ConsoleUIController::Initialize(HANDLE &console)
+{
+	if (m_instance == nullptr)
+		m_instance = new ConsoleUIController(console);
+
+	return m_instance;
+}
+
+#pragma endregion
+
+
 
 #pragma region Satic Definitions
 

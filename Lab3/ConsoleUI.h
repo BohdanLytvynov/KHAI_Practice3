@@ -35,8 +35,30 @@ namespace UIControls
 
 		static WORD BLUE;
 
-		static WORD ORANGE;
+		static WORD GREEN;
 
+		static WORD CYAN;
+
+		static WORD RED;
+
+		static WORD PURPLE;
+
+		static WORD LIGHTBLUE;
+
+		static WORD LIGHTGREEN;
+
+		static WORD LIGHTCYAN;
+
+		static WORD LIGHTRED;
+
+		static WORD LIGHTPURPLE;
+
+		static WORD YELLOW;
+
+		static WORD ORANGE;
+		/// <summary>
+		/// BackGround Fonts
+		/// </summary>
 		static WORD WhiteBack;
 
 		static WORD BLACKBack;
@@ -46,6 +68,26 @@ namespace UIControls
 		static WORD LIGHTGRAYBack;
 
 		static WORD BLUEBack;
+
+		static WORD GREENBack;
+
+		static WORD CYANBack;
+
+		static WORD REDBack;
+
+		static WORD PURPLEBack;
+
+		static WORD LIGHTBLUEBack;
+
+		static WORD LIGHTGREENBack;
+
+		static WORD LIGHTCYANBack;
+
+		static WORD LIGHTREDBack;
+
+		static WORD LIGHTPURPLEBack;
+
+		static WORD YELLOWBack;
 
 		static WORD ORANGEBack;
 	};
@@ -226,6 +268,29 @@ namespace UIControls
 
 	};
 
+	//Base Class for All TextBlocks
+	class TextBlockStyle : public Style, public UIContentStyle
+	{
+	private:
+
+		void Abs() override {};
+
+	public:
+
+#pragma region Ctor
+
+		TextBlockStyle(const string name, UShort width, UShort height,
+			Vector2D contentPos = Vector2D(1, 1),
+			WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack,
+			WORD backColor = Colors::WhiteBack,
+			WORD Foreground = Colors::BLACKBack | Colors::White,
+			UShort minWidth = 0,
+			UShort minHeight = 0, UShort maxWidth = 0, UShort maxHeight = 0);
+
+#pragma endregion
+
+	};
+
 	/// <summary>
 	/// Base Style for all buttons
 	/// </summary>
@@ -268,7 +333,7 @@ namespace UIControls
 	{
 	private:
 		
-		Vector2D m_ChildPostion;//Relative position of all the childre
+		Vector2D m_ChildPostion;//Relative position of all the children
 
 		UShort m_Interval;//Inerval between elements
 
@@ -323,6 +388,34 @@ namespace UIControls
 
 	};
 
+	class TableRowStyle : public Style
+	{
+	private:
+		void Abs() override {};
+
+		UShort m_HorOffset;
+
+	public:
+
+#pragma region Ctor
+
+		TableRowStyle(const string name, UShort width, UShort height, 
+			WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack, 
+			WORD backColor = Colors::WhiteBack, UShort minWidth = 0 ,
+			UShort minHeight = 0, UShort maxWidth = 0, UShort maxHeight = 0,
+			UShort horOffset = 0);
+
+#pragma endregion
+
+#pragma region Getters
+
+		UShort GetHorOffset() const;
+
+#pragma endregion
+
+		void SetHorOffset(const UShort& horOffset);
+	};
+
 	/// <summary>
 	/// Base class for all the UI Controls
 	/// </summary>
@@ -330,7 +423,7 @@ namespace UIControls
 	{
 	private:
 
-		Style *m_stylePtr;//Ptr to current style
+		Style *m_stylePtr;//Ptr to current style (Usage of the Polymorphism)
 
 		bool m_visibility;//Controls UI Element Visisbility
 
@@ -354,8 +447,8 @@ namespace UIControls
 		/// <param name="position">-Global position of the control</param>
 		/// <param name="content">-Content's control</param>
 		/// <param name="visibility">-Visibility of the control</param>
-		UIControl(const string &name, Vector2D position, const string &content, bool visibility
-			);
+		UIControl(const string &name, Vector2D position, const string &content, bool visibility,
+			Style *style);
 
 #pragma endregion
 
@@ -393,7 +486,7 @@ namespace UIControls
 		/// Gets the pointer to the Base Style Class
 		/// </summary>
 		/// <returns>POinter to the base style class</returns>
-		Style* GetStylePtr();
+		Style *GetStylePtr();
 
 		/// <summary>
 		/// Sets the pointer to the Base Style Class
@@ -425,7 +518,7 @@ namespace UIControls
 		/// <summary>
 		/// Method for rendering of the UIElement
 		/// </summary>
-		virtual void Render() const = 0;
+		virtual void Render() = 0;
 
 	};
 	
@@ -434,9 +527,7 @@ namespace UIControls
 	{
 		private:
 			vector<UIControl*> m_Children;//Collection of poiners on UIControls
-
-			PanelStyle m_style;//Panel style
-			
+						
 		public:
 
 #pragma region Ctors
@@ -459,7 +550,7 @@ namespace UIControls
 			/// Gets the copy of the panel's style
 			/// </summary>
 			/// <returns>The copy of the panel's style</returns>
-			PanelStyle GetStyle()const;			
+			PanelStyle* GetStyle();			
 #pragma endregion
 
 #pragma region Setters
@@ -467,7 +558,7 @@ namespace UIControls
 			/// Set new panel style
 			/// </summary>
 			/// <param name="newStyle">New panel style</param>
-			void SetStyle(PanelStyle& newStyle);
+			void SetStyle(PanelStyle *newStyle);
 #pragma endregion
 
 #pragma region CRUD Functions
@@ -518,7 +609,7 @@ namespace UIControls
 			/// <summary>
 			/// Used to render Panel and children UI elements
 			/// </summary>
-			void Render() const override;
+			void Render() override;
 
 #pragma endregion
 
@@ -526,14 +617,12 @@ namespace UIControls
 	//Button class
 	class Button : public UIControl
 	{
-	private:
-		ButtonStyle m_style;//Buton style
-		
+			
 	public:
 		/// <summary>
 		/// Used to render Buttons
 		/// </summary>
-		void Render() const override;
+		void Render() override;
 #pragma region Ctors
 		/// <summary>
 		/// Main ctor
@@ -547,7 +636,7 @@ namespace UIControls
 		/// <summary>
 		/// Gets the copy to the Buttons Style
 		/// </summary>
-		ButtonStyle GetStyle()const;
+		ButtonStyle *GetStyle();
 
 #pragma endregion
 
@@ -555,8 +644,76 @@ namespace UIControls
 		/// <summary>
 		/// Sets new Button Style
 		/// </summary>
-		void SetStyle(ButtonStyle style);
+		void SetStyle(ButtonStyle* style);
 #pragma endregion
+
+	};
+
+	class TableRow;
+
+	class TextBlock : public UIControl
+	{
+
+	public:
+
+#pragma region Ctor
+		TextBlock(const string& name, Vector2D position, TextBlockStyle style, const string& content,
+			bool visibility);
+#pragma endregion
+
+#pragma region Getters
+
+		TextBlockStyle* GetStyle();
+
+#pragma endregion
+
+#pragma region Setters
+
+		void SetStyle(TextBlockStyle* newStyle);
+
+#pragma endregion
+
+#pragma region Functions
+
+		void Render() override;
+
+#pragma endregion
+		
+	};
+
+	class DataTable : public UIControl
+	{
+	private:
+
+		vector<TableRow*> m_tableRows;
+
+	public:
+		DataTable(vector<TableRow*> &tableRowsCollection);
+	};
+
+	class TableRow : private UIControl
+	{
+	private:
+		vector<UIControl*> m_Cells;
+
+	public:
+#pragma region Ctor
+		TableRow(const string& name, Vector2D position, TableRowStyle style,
+			const string& content,
+			bool visibility);
+#pragma endregion
+
+#pragma region CRUD Functions
+		void AddUIControl(UIControl *control );
+
+		void RemoveUIControl(const string& elemName);
+
+		void RemoveUIControl(const long int &id);
+
+		UIControl* GetUIControls(size_t& size);
+#pragma endregion
+
+		void Render() override;
 
 	};
 }
@@ -577,18 +734,13 @@ namespace ConsoleUI
 		Cursor m_cursor;//Cursor type(Not implemented Yet)
 
 		static ConsoleUIController* m_instance;//Pointer to the current instance of the Singltone
-
-#pragma region Ctor
-		//Private ctor Initializes Console functions Library
-		ConsoleUIController(HANDLE &console);
-		//Destructor removes singletone instance from the memory
-		~ConsoleUIController();
-
-#pragma endregion
 		
 	public:
 		//Init Singletone instance and get pointer to it
 		static ConsoleUIController*const Initialize(HANDLE &console);
+
+		static void Dispose();
+
 		//Draw all the UI elements
 		void Draw();
 		//Add UI control
@@ -601,6 +753,17 @@ namespace ConsoleUI
 		void EditUIControl(const string& elemName, UIControls::UIControl *newChild);
 		//Remove UI Control
 		void RemoveUIControl(const string& elemName);
+
+		UIControls::UIControl* GetControls(size_t &size);
+
+	private:
+#pragma region Ctor
+		//Private ctor Initializes Console functions Library
+		ConsoleUIController(HANDLE& console);
+		//Destructor removes singletone instance from the memory
+		~ConsoleUIController();
+
+#pragma endregion
 		
 	};	
 }
