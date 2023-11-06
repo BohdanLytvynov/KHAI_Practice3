@@ -402,7 +402,7 @@ void UIControl::SetPosition(Vector2D& newPosition)
 }
 
 
-void UIControl::SetContent(const string newContent)
+void UIControl::SetContent(const string &newContent)
 {
 	m_Content = newContent;
 }
@@ -552,9 +552,7 @@ void Panel::EditChild(const string& elemName, UIControl *newChild)
 		if (c->GetName() == elemName)
 		{
 			*c = *newChild;
-
-			c->SetStylePtr(newChild->GetStylePtr());
-
+			
 			break;
 		}
 			
@@ -776,11 +774,48 @@ UIControl* TableRow::GetUIControls(size_t& size)
 
 #pragma endregion
 
+#pragma region Getters
+
+TableRowStyle* TableRow::GetStyle()
+{
+	return reinterpret_cast<TableRowStyle*>(UIControl::GetStylePtr());
+}
+
+#pragma endregion
+
+#pragma region Setters
+
+#pragma endregion
+
+
 #pragma region Functions
 
 void TableRow::Render()
 {
+	TableRowStyle* Currstyle = this->GetStyle();
 
+	Vector2D position = this->GetPosition();
+
+	Vector2D newPosition;
+		
+	auto horOffset = Currstyle->GetHorOffset();
+	int i = 0;
+	for (UIControl* UIctrl : m_Cells)
+	{
+		if (UIctrl == nullptr)
+			return;
+		
+		if (UIctrl->GetVisibility())
+		{
+			newPosition = position + Vector2D(((UIctrl->GetStylePtr()->GetWidth() + horOffset) * i), 0);
+
+			UIctrl->SetPosition(newPosition);
+
+			UIctrl->Render();
+		}
+
+		i++;
+	}			
 }
 
 #pragma endregion
@@ -934,8 +969,6 @@ ConsoleUIController* const ConsoleUIController::Initialize(HANDLE &console)
 }
 
 #pragma endregion
-
-
 
 #pragma region Satic Definitions
 

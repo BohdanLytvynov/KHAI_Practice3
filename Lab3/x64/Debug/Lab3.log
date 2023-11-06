@@ -1,16 +1,4 @@
-﻿  Base.cpp
-  ConsoleUI.cpp
+﻿  Lab3.cpp
 D:\C++ Projects\KHAI\Practice\Lab3\includes\Console.h(89,38): warning C4190: для "Input" задана С-связывание, но возвращаемый тип UDT "std::basic_string<char,std::char_traits<char>,std::allocator<char>>" несовместим с языком Си
 D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\xstring(5186): message : см. объявление "std::basic_string<char,std::char_traits<char>,std::allocator<char>>"
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\ConsoleUI.cpp(510,26): warning C4267: =: преобразование из "size_t" в "unsigned int"; возможна потеря данных
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\ConsoleUI.cpp(743,13): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\ConsoleUI.cpp(761,13): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-  Lab3.cpp
-D:\C++ Projects\KHAI\Practice\Lab3\includes\Console.h(89,38): warning C4190: для "Input" задана С-связывание, но возвращаемый тип UDT "std::basic_string<char,std::char_traits<char>,std::allocator<char>>" несовместим с языком Си
-D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\xstring(5186): message : см. объявление "std::basic_string<char,std::char_traits<char>,std::allocator<char>>"
-  VectorMath.cpp
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\VectorMath.cpp(159,51): warning C4244: аргумент: преобразование "int" в "float", возможна потеря данных
-  Создание кода...
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\ConsoleUI.cpp(520): warning C4715: UIControls::Panel::GetChild: значение возвращается не при всех путях выполнения
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\ConsoleUI.cpp(527): warning C4715: UIControls::Panel::GetChild: значение возвращается не при всех путях выполнения
   Lab3.vcxproj -> D:\C++ Projects\KHAI\Practice\Lab3\x64\Debug\Lab3.exe

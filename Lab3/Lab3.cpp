@@ -110,15 +110,31 @@ int main()
 
     step = static_cast<float>(step) * (M_PI / 180);*/
 
-    /*TextBlockStyle* txtBlStyle = new TextBlockStyle("TextBlockTest", 30, 16);
+    TextBlockStyle* txtBlStyle = new TextBlockStyle("TextBlockTest", 30, 6);
 
-    TextBlock* txtBlock = new TextBlock("TextBlock", Vector2D(3, 4), *txtBlStyle, "text", true);*/
+    /*TextBlock* txtBlock = new TextBlock("TextBlock", Vector2D(3, 4), *txtBlStyle, "text", true);*/
 
     /*controller->AddUIControl(txtBlock);*/
 
+    TextBlock cell1 = TextBlock("cell1", Vector2D(), *txtBlStyle, "Cell 1", true);
+
+    TextBlock cell2 = TextBlock("cell2", Vector2D(), *txtBlStyle, "Cell 2", true);
+
+    TextBlock cell3 = TextBlock("cell3", Vector2D(), *txtBlStyle, "Cell 3", true);
+
+    TableRowStyle tblRowStyle = TableRowStyle("tblRow", 0,0);
+
+    TableRow row1 = TableRow("TableRow1", Vector2D(3,3), tblRowStyle, "", true);
+
+    row1.AddUIControl(&cell1);
+
+    row1.AddUIControl(&cell2);
+
+    row1.AddUIControl(&cell3);
+
 #pragma endregion
 
-
+    controller->AddUIControl(&row1);
     //Draw UI
     controller->Draw();
     

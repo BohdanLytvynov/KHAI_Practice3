@@ -416,6 +416,11 @@ namespace UIControls
 		void SetHorOffset(const UShort& horOffset);
 	};
 
+	class TableDataStyle : public Style, public UIContentStyle
+	{
+
+	};
+
 	/// <summary>
 	/// Base class for all the UI Controls
 	/// </summary>
@@ -498,21 +503,17 @@ namespace UIControls
 
 #pragma region Setters
 
-		void SetVisibility(bool &newVisibility);
+		void SetVisibility(bool& visibility);
 
 		void SetPosition(Vector2D& newPosition);
-				
-		void AddChild(UIControl &child);
-
-		void EditChild(const long int &childId, UIControl newChild);
-
+								
 		void RemoveChild(const long int& childId);
 
 		void EditChild(const string &elemName, UIControl newChild);
 
 		void RemoveChild(const string& elemName);
 
-		void SetContent(const string newContent);
+		void SetContent(const string &newContent);
 
 #pragma endregion
 		/// <summary>
@@ -688,10 +689,10 @@ namespace UIControls
 		vector<TableRow*> m_tableRows;
 
 	public:
-		DataTable(vector<TableRow*> &tableRowsCollection);
+		DataTable();
 	};
 
-	class TableRow : private UIControl
+	class TableRow : public UIControl
 	{
 	private:
 		vector<UIControl*> m_Cells;
@@ -714,6 +715,19 @@ namespace UIControls
 #pragma endregion
 
 		void Render() override;
+
+#pragma region Getters
+
+		TableRowStyle* GetStyle();
+
+#pragma endregion
+
+#pragma region Setters
+
+		void SetStyle(TableRowStyle* newStyle);
+
+#pragma endregion
+
 
 	};
 }
