@@ -1088,7 +1088,7 @@ ConsoleUIController* const ConsoleUIController::Initialize(HANDLE &console)
 {
 	if (m_instance == nullptr)
 		m_instance = new ConsoleUIController(console);
-
+	
 	return m_instance;
 }
 

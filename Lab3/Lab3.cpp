@@ -162,7 +162,7 @@ int main()
 
     while (startAngle <= endAngle)
     {                
-        TextBlock txtBl = TextBlock("Angle" + i, Vector2D(), cellStyle, true);
+        TextBlock txtBl = TextBlock("Angle" + i, Vector2D(), cellStyle, "startAngle", true);
         
         startAngle += step;
         i++;

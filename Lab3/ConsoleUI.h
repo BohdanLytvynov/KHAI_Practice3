@@ -678,8 +678,32 @@ namespace UIControls
 
 	class TableRow;
 
+	class Printer
+	{
+	
+	private:
+		virtual void Print() = 0;
+	};
+
+	class FloatPrecisionPrinter : Printer
+	{
+	private:
+		float m_value;
+		int m_precision;
+	public:
+
+#pragma region Functions
+
+		void Print()override;
+
+#pragma endregion
+
+	};
+
 	class TextBlock : public UIControl
 	{
+	private:
+		Printer *m_printer;
 
 	public:
 
