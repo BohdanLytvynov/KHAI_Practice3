@@ -400,10 +400,11 @@ namespace UIControls
 #pragma region Ctor
 
 		TableRowStyle(const string name, UShort width, UShort height, 
+			UShort horOffset = 0,
 			WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack, 
 			WORD backColor = Colors::WhiteBack, UShort minWidth = 0 ,
-			UShort minHeight = 0, UShort maxWidth = 0, UShort maxHeight = 0,
-			UShort horOffset = 0);
+			UShort minHeight = 0, UShort maxWidth = 0, UShort maxHeight = 0
+			);
 
 #pragma endregion
 
@@ -416,8 +417,39 @@ namespace UIControls
 		void SetHorOffset(const UShort& horOffset);
 	};
 
-	class TableDataStyle : public Style, public UIContentStyle
+	class DataTableStyle : public Style, public UIContentStyle
 	{
+	private:
+		void Abs() {}
+
+		UShort m_VertOffset;
+
+	public:
+#pragma region Ctor
+
+		DataTableStyle(const string name, UShort width, UShort height,
+			UShort vertOffset,
+			Vector2D HeaderPos = Vector2D(1, 1),
+			WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack,
+			WORD backColor = Colors::WhiteBack,
+			WORD Foreground = Colors::BLACKBack | Colors::White,			
+			UShort minWidth = 0,
+			UShort minHeight = 0, UShort maxWidth = 0, UShort maxHeight = 0);
+
+#pragma endregion
+
+#pragma region Getters
+
+		UShort GetVertOffset() const;
+
+#pragma endregion
+
+#pragma region Setters
+
+		void SetVertOffset(const UShort& vertOffset);
+
+#pragma endregion
+
 
 	};
 
@@ -506,13 +538,7 @@ namespace UIControls
 		void SetVisibility(bool& visibility);
 
 		void SetPosition(Vector2D& newPosition);
-								
-		void RemoveChild(const long int& childId);
-
-		void EditChild(const string &elemName, UIControl newChild);
-
-		void RemoveChild(const string& elemName);
-
+									
 		void SetContent(const string &newContent);
 
 #pragma endregion
@@ -689,7 +715,44 @@ namespace UIControls
 		vector<TableRow*> m_tableRows;
 
 	public:
-		DataTable();
+#pragma region Ctor
+
+		DataTable(const string& name, Vector2D position, DataTableStyle style,
+			const string& tableHeader,
+			bool visibility);
+
+#pragma endregion
+
+#pragma region Getters
+
+		DataTableStyle* GetSyle();		
+
+#pragma endregion
+
+#pragma region Setters
+
+		void SetStyle(DataTableStyle* newStyle);
+
+#pragma endregion
+
+
+#pragma region CRUD Operations
+
+		void AddTableRow(TableRow* tblRow);
+
+		void RemoveTableRow(const int long& id);
+
+		void RemoveTableRow(const string& name);
+
+#pragma endregion
+
+#pragma region Functions
+
+		void Render() override;
+
+#pragma endregion
+
+		
 	};
 
 	class TableRow : public UIControl
@@ -699,8 +762,7 @@ namespace UIControls
 
 	public:
 #pragma region Ctor
-		TableRow(const string& name, Vector2D position, TableRowStyle style,
-			const string& content,
+		TableRow(const string& name, Vector2D position, TableRowStyle style,			
 			bool visibility);
 #pragma endregion
 

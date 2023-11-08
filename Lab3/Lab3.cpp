@@ -8,6 +8,7 @@
 #include"VectorMath.h"
 #include"ConsoleUI.h"
 #include"Console.h"
+#include<string>
 
 using namespace ConsoleUI;
 
@@ -29,6 +30,11 @@ bool CheckNumber(const string& str)
 }
 
 #pragma endregion
+
+void ShowF()
+{
+
+}
 
 int main()
 {
@@ -89,7 +95,20 @@ int main()
 
     ConsoleFuncs::SetDefaultColor(Colors::White);
    
-    /*float startAngle = 0;
+#pragma region Styles
+
+    TextBlockStyle cellStyle = TextBlockStyle("txtBlStyle", 5, 6);
+
+    TableRowStyle tablerowStyle = TableRowStyle("TableRowStyle", 0,0, 1);
+
+    DataTableStyle dataTableStyle = DataTableStyle("DataTblStyle", 0,0, 1,
+        Vector2D(1,1));
+
+#pragma endregion
+
+#pragma region Get User Input Block
+
+    float startAngle = 0;
 
     float endAngle = 0;
 
@@ -98,47 +117,62 @@ int main()
     auto startStr = ConsoleFuncs::Input("Enter the start angle value : ", Colors::GREEN,
         CheckNumber);
 
-    startAngle = static_cast<float>(startAngle) * (M_PI/180);
+    startAngle = static_cast<float>(startAngle) * (M_PI / 180);
 
     auto endStr = ConsoleFuncs::Input("Enter the end angle vaue: ", Colors::GREEN,
         CheckNumber);
 
-    endAngle = static_cast<float>(endAngle) * (M_PI/180);
+    endAngle = static_cast<float>(endAngle) * (M_PI / 180);
 
     auto stepStr = ConsoleFuncs::Input("Enter the step value: ", Colors::GREEN,
         CheckNumber);
 
-    step = static_cast<float>(step) * (M_PI / 180);*/
-
-    TextBlockStyle* txtBlStyle = new TextBlockStyle("TextBlockTest", 30, 6);
-
-    /*TextBlock* txtBlock = new TextBlock("TextBlock", Vector2D(3, 4), *txtBlStyle, "text", true);*/
-
-    /*controller->AddUIControl(txtBlock);*/
-
-    TextBlock cell1 = TextBlock("cell1", Vector2D(), *txtBlStyle, "Cell 1", true);
-
-    TextBlock cell2 = TextBlock("cell2", Vector2D(), *txtBlStyle, "Cell 2", true);
-
-    TextBlock cell3 = TextBlock("cell3", Vector2D(), *txtBlStyle, "Cell 3", true);
-
-    TableRowStyle tblRowStyle = TableRowStyle("tblRow", 0,0);
-
-    TableRow row1 = TableRow("TableRow1", Vector2D(3,3), tblRowStyle, "", true);
-
-    row1.AddUIControl(&cell1);
-
-    row1.AddUIControl(&cell2);
-
-    row1.AddUIControl(&cell3);
+    step = static_cast<float>(step) * (M_PI / 180);
 
 #pragma endregion
 
-    controller->AddUIControl(&row1);
-    //Draw UI
-    controller->Draw();
+#pragma region Build Data Table
+
+    string Tablemsg = "Sine and Cosine Table.\n" + string("Start Angle: ") + startStr +
+        string("End Angle: ") + endStr;
+
+#pragma endregion
+
+    DataTable table = DataTable("table", Vector2D(), dataTableStyle, Tablemsg, true);
+
+    // 1 Table Row
+
+    TextBlock sineValue = TextBlock("sineValue", Vector2D(), cellStyle, "Sine Value:", true);
+
+    TextBlock cosineValue = TextBlock("cosineValue", Vector2D(), cellStyle, "Cosine Value:", true);
+
+    TextBlock AngleValue = TextBlock("AngleValue", Vector2D(), cellStyle, "Angle Value:", true);
+
+    TableRow rowHeaders = TableRow("Headeers", Vector2D(), tablerowStyle, true);
+
+    rowHeaders.AddUIControl(&AngleValue);
+
+    rowHeaders.AddUIControl(&sineValue);
+
+    rowHeaders.AddUIControl(&cosineValue);
+   
+    table.AddTableRow(&rowHeaders);
+
+    int i = 0;
+
+    while (startAngle <= endAngle)
+    {                
+        TextBlock txtBl = TextBlock("Angle" + i, Vector2D(), cellStyle, true);
+        
+        startAngle += step;
+        i++;
+    }
+               
+#pragma endregion
+
     
-    //controller->Dispose();
+    //Draw UI
+    controller->Draw();        
 
     system("Pause");
 }

@@ -299,9 +299,10 @@ TextBlockStyle::TextBlockStyle(const string name, UShort width, UShort height,
 
 #pragma region Ctor
 
-TableRowStyle::TableRowStyle(const string name, UShort width, UShort height, WORD brdColor,
+TableRowStyle::TableRowStyle(const string name, UShort width, UShort height,
+	UShort horOffset, WORD brdColor,
 	WORD backColor, UShort minWidth,
-	UShort minHeight, UShort maxWidth, UShort maxHeight, UShort horOffset) :
+	UShort minHeight, UShort maxWidth, UShort maxHeight) :
 	m_HorOffset(horOffset),
 	Style(name, width, height, brdColor, backColor, minWidth, minHeight, maxWidth, maxHeight)
 {
@@ -327,6 +328,46 @@ void TableRowStyle::SetHorOffset(const UShort &horOffset)
 }
 
 #pragma endregion
+
+#pragma endregion
+
+#pragma region DataTableStyle
+
+#pragma region Ctor
+
+DataTableStyle::DataTableStyle(
+	const string name, UShort width, UShort height,
+	UShort vertOffset,
+	Vector2D contentPos,
+	WORD brdColor,
+	WORD backColor,
+	WORD Foreground,
+	UShort minWidth,
+	UShort minHeight, UShort maxWidth, UShort maxHeight
+) : m_VertOffset(vertOffset), Style(name, width, height, brdColor, backColor, 
+	minWidth, minHeight, maxWidth, maxHeight),
+UIContentStyle(contentPos, Foreground) {}
+
+#pragma endregion
+
+#pragma region Getters
+
+UShort DataTableStyle::GetVertOffset()const
+{
+	return m_VertOffset;
+}
+
+#pragma endregion
+
+#pragma region Setters
+
+void DataTableStyle::SetVertOffset(const UShort &vertOffset)
+{
+	m_VertOffset = vertOffset;
+}
+
+#pragma endregion
+
 
 #pragma endregion
 
@@ -708,9 +749,8 @@ void TextBlock::Render()
 
 #pragma region Ctor
 
-TableRow::TableRow(const string& name, Vector2D position, TableRowStyle style,
-	const string& content,
-	bool visibility) : UIControl(name, position, content, visibility, &style)
+TableRow::TableRow(const string& name, Vector2D position, TableRowStyle style,	
+	bool visibility) : UIControl(name, position, "", visibility, &style)
 {
 }
 
@@ -823,6 +863,87 @@ void TableRow::Render()
 
 #pragma endregion
 
+#pragma region Data Table
+
+#pragma region Ctor
+
+DataTable::DataTable(const string& name, Vector2D position, DataTableStyle style,
+	const string& tableHeader,
+	bool visibility) : UIControl(name, position, tableHeader, visibility, &style) {}
+
+#pragma endregion
+
+#pragma region CRUD Operations
+
+void DataTable::AddTableRow(TableRow* tblRow)
+{
+	if (tblRow == nullptr)
+		return;
+
+	m_tableRows.push_back(tblRow);
+}
+
+void DataTable::RemoveTableRow(const string &name)
+{
+	if (name.empty())
+		return;
+
+	size_t index = -1;
+
+	size_t length = m_tableRows.size();
+
+	for (size_t i = 0; i < length; i++)
+	{
+		if (m_tableRows[i]->GetName() == name)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if (index != -1)
+		m_tableRows.erase(m_tableRows.begin() + index);
+}
+
+void DataTable::RemoveTableRow(const long int &id)
+{
+	if (id < 0)
+		return;
+
+	size_t index = -1;
+
+	size_t length = m_tableRows.size();
+
+	for (size_t i = 0; i < length; i++)
+	{
+		if (m_tableRows[i]->GetId() == id)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if (index != -1)
+		m_tableRows.erase(m_tableRows.begin() + index);
+}
+
+#pragma endregion
+
+#pragma region Functions
+
+void DataTable::Render() 
+{
+	
+}
+
+#pragma endregion
+
+
+#pragma endregion
+
+
+
+#pragma endregion
 
 #pragma endregion
 
@@ -839,6 +960,9 @@ void ConsoleUIController::Draw()
 
 void ConsoleUIController::AddUIControl(UIControls::UIControl* newChild)
 {
+	if (newChild == nullptr)
+		return;
+
 	m_WindowControlls.push_back(newChild);
 }
 
