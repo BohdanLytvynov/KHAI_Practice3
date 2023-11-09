@@ -97,6 +97,7 @@ namespace UIControls
 	/// </summary>
 	class Style 
 	{
+
 	private:
 
 		string m_Name;//Style's name
@@ -473,7 +474,7 @@ namespace UIControls
 		long int m_Id;//Id of the Current UI Element
 
 		Vector2D m_position;//Position of the control with respect to global coords				
-
+			
 	public:
 
 #pragma region Ctors
@@ -486,6 +487,8 @@ namespace UIControls
 		/// <param name="visibility">-Visibility of the control</param>
 		UIControl(const string &name, Vector2D position, const string &content, bool visibility,
 			Style *style);
+
+		UIControl();
 
 #pragma endregion
 
@@ -524,6 +527,18 @@ namespace UIControls
 		/// </summary>
 		/// <returns>POinter to the base style class</returns>
 		Style *GetStylePtr();
+		
+#pragma endregion
+
+#pragma region Setters
+
+		void SetName(const string& name);
+
+		void SetVisibility(bool& visibility);
+
+		void SetPosition(Vector2D& newPosition);
+									
+		void SetContent(const string &newContent);
 
 		/// <summary>
 		/// Sets the pointer to the Base Style Class
@@ -532,20 +547,14 @@ namespace UIControls
 		void SetStylePtr(Style* ptr);
 
 #pragma endregion
-
-#pragma region Setters
-
-		void SetVisibility(bool& visibility);
-
-		void SetPosition(Vector2D& newPosition);
-									
-		void SetContent(const string &newContent);
-
-#pragma endregion
 		/// <summary>
 		/// Method for rendering of the UIElement
 		/// </summary>
 		virtual void Render() = 0;
+
+	protected:
+		void Build(const string& name, Vector2D position, const string& content, bool visibility,
+			Style* style);
 
 	};
 	
@@ -681,20 +690,37 @@ namespace UIControls
 	class Printer
 	{
 	
-	private:
-		virtual void Print() = 0;
+	public:
+		virtual void Print(WORD &Foreground) = 0;
 	};
 
-	class FloatPrecisionPrinter : Printer
+	class FloatPrecisionPrinter : public Printer
 	{
 	private:
-		float m_value;
-		int m_precision;
+		float m_value;		
+
+		void (*m_UpdtOutputStream)(std::ostream& outputStream);
 	public:
+
+#pragma region Ctor
+
+		FloatPrecisionPrinter( const float &value,
+			void (*UpdtOutputStream)(std::ostream & outputStream));
+			
+#pragma endregion
+
+#pragma region Getters
+		float GetValue();
+#pragma endregion
+
+#pragma region Setters
+		void SetValue(const float &value);
+#pragma endregion
+
 
 #pragma region Functions
 
-		void Print()override;
+		void Print(WORD &foreground)override;
 
 #pragma endregion
 
@@ -708,7 +734,12 @@ namespace UIControls
 	public:
 
 #pragma region Ctor
+		TextBlock();
+
 		TextBlock(const string& name, Vector2D position, TextBlockStyle style, const string& content,
+			bool visibility);
+
+		TextBlock(const string& name, Vector2D position, TextBlockStyle style, Printer *printer,
 			bool visibility);
 #pragma endregion
 
@@ -727,6 +758,12 @@ namespace UIControls
 #pragma region Functions
 
 		void Render() override;
+
+		void Build(const string& name, Vector2D position, TextBlockStyle style, const string& content,
+			bool visibility);
+
+		void Build(const string& name, Vector2D position, TextBlockStyle style, Printer* printer,
+			bool visibility);
 
 #pragma endregion
 		
@@ -786,6 +823,8 @@ namespace UIControls
 
 	public:
 #pragma region Ctor
+		TableRow();
+
 		TableRow(const string& name, Vector2D position, TableRowStyle style,			
 			bool visibility);
 #pragma endregion
@@ -801,6 +840,9 @@ namespace UIControls
 #pragma endregion
 
 		void Render() override;
+
+		void Build(const string& name, Vector2D position, TableRowStyle style,
+			bool visibility);
 
 #pragma region Getters
 

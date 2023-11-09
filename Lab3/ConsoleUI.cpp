@@ -389,6 +389,8 @@ UIControl::UIControl(const string& name, Vector2D position,const string &content
 	m_Id = m_Idlast;	
 }
 
+UIControl::UIControl() : UIControl("", Vector2D(), "", true, nullptr ) { }
+
 #pragma endregion
 
 #pragma region Getters
@@ -442,6 +444,10 @@ void UIControl::SetPosition(Vector2D& newPosition)
 	m_position = newPosition;
 }
 
+void UIControl::SetName(const string &name)
+{
+	m_Name = name;
+}
 
 void UIControl::SetContent(const string &newContent)
 {
@@ -449,6 +455,26 @@ void UIControl::SetContent(const string &newContent)
 }
 
 #pragma endregion
+
+#pragma region Functions
+
+void UIControl::Build(const string& name, Vector2D position, const string& content, bool visibility,
+	Style* style)
+{
+	//Reinit fields
+	m_Name = name;
+
+	m_position = position;
+
+	m_Content = content;
+
+	m_visibility = visibility;
+
+	m_stylePtr = style;
+}
+
+#pragma endregion
+
 
 #pragma endregion
 
@@ -690,8 +716,17 @@ void Panel::Render()
 
 #pragma region Ctor
 
+TextBlock::TextBlock() : UIControl() {}
+
 TextBlock::TextBlock(const string& name, Vector2D position, TextBlockStyle style, const string& content,
 	bool visibility) : UIControl(name, position, content, visibility, &style)
+{
+	m_printer = nullptr;
+}
+
+TextBlock::TextBlock(const string& name, Vector2D position, TextBlockStyle style, Printer* printer,
+	bool visibility) : UIControl(name, position, "", visibility, &style)
+	, m_printer(printer)
 {
 
 }
@@ -719,6 +754,20 @@ void TextBlock::SetStyle(TextBlockStyle *newStyle)
 
 #pragma region Functions
 
+void TextBlock::Build(const string& name, Vector2D position, TextBlockStyle style, const string& content,
+	bool visibility)
+{
+	UIControl::Build(name, position, content, visibility, &style);
+}
+
+void TextBlock::Build(const string& name, Vector2D position, TextBlockStyle style, Printer* printer,
+	bool visibility)
+{
+	UIControl::Build(name, position, "", visibility, &style);
+
+	m_printer = printer;
+}
+
 void TextBlock::Render()
 {
 	auto v = GetPosition();
@@ -734,7 +783,16 @@ void TextBlock::Render()
 
 	SetCursorPosition(cv[0], cv[1]);
 
-	PrintColorMsg(GetContent(), style->GetForeground());
+	if (m_printer == nullptr)
+	{
+		PrintColorMsg(GetContent(), style->GetForeground());
+	}
+	else
+	{
+		auto Foreground = style->GetForeground();
+
+		m_printer->Print(Foreground);
+	}
 
 	SetCursorPosition(0, 0);
 }
@@ -745,9 +803,64 @@ void TextBlock::Render()
 
 #pragma endregion
 
+#pragma region Float Precision Printer
+
+#pragma region Ctor
+
+FloatPrecisionPrinter::FloatPrecisionPrinter(const float& value,
+	void (*UpdtOutputStream)(std::ostream& outputStream)):
+	m_UpdtOutputStream(UpdtOutputStream), m_value(value)
+{
+
+}
+
+#pragma endregion
+
+#pragma region Getters
+
+float FloatPrecisionPrinter::GetValue()
+{
+	return m_value;
+}
+
+#pragma endregion
+
+#pragma region Setters
+
+void FloatPrecisionPrinter::SetValue(const float& value)
+{
+	m_value = value;
+}
+
+#pragma endregion
+
+#pragma region Functions
+
+void FloatPrecisionPrinter::Print(WORD &foreground)
+{
+	if (m_UpdtOutputStream != nullptr)
+		m_UpdtOutputStream(cout);
+
+	HANDLE h = ConsoleFuncs::GetHandle();
+
+	SetConsoleTextAttribute(h, foreground);
+
+	cout << m_value;
+
+	SetConsoleTextAttribute(h, *ConsoleFuncs::GetDefaultColor());
+}
+
+#pragma endregion
+
+
+#pragma endregion
+
+
 #pragma region TableRow
 
 #pragma region Ctor
+
+TableRow::TableRow() :UIControl() {}
 
 TableRow::TableRow(const string& name, Vector2D position, TableRowStyle style,	
 	bool visibility) : UIControl(name, position, "", visibility, &style)
@@ -856,6 +969,18 @@ void TableRow::Render()
 
 		i++;
 	}			
+}
+
+void TableRow::Build(const string& name, Vector2D position, TableRowStyle style,
+	bool visibility)
+{
+	SetName(name);
+
+	SetPosition(position);
+
+	SetStylePtr(&style);
+
+	SetVisibility(visibility);
 }
 
 #pragma endregion
