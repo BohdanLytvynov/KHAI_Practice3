@@ -5,20 +5,18 @@
 #include"Console.h"
 #include"VectorMath.h"
 
-
-using namespace std;
-
-using namespace VectorMath;
-
 #pragma region Type defs
 
 typedef unsigned short UShort;
 
 #pragma endregion
 
-
 namespace UIControls
-{		
+{	
+	using namespace std;
+
+	using namespace VectorMath;
+
 	/// <summary>
 	/// Colors static class holder
 	/// </summary>
@@ -400,7 +398,7 @@ namespace UIControls
 
 #pragma region Ctor
 
-		TableRowStyle(const string name, UShort width, UShort height, 
+		TableRowStyle(const string name,  
 			UShort horOffset = 0,
 			WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack, 
 			WORD backColor = Colors::WhiteBack, UShort minWidth = 0 ,
@@ -428,7 +426,7 @@ namespace UIControls
 	public:
 #pragma region Ctor
 
-		DataTableStyle(const string name, UShort width, UShort height,
+		DataTableStyle(const string name,
 			UShort vertOffset,
 			Vector2D HeaderPos = Vector2D(1, 1),
 			WORD brdColor = Colors::GREY | Colors::LIGHTGRAYBack,
@@ -576,7 +574,7 @@ namespace UIControls
 			/// <param name="style">-Panel's style</param>
 			/// <param name="header">-Panel's header content</param>
 			/// <param name="visibility">-Visibility of the panel</param>
-			Panel(const string& name, Vector2D position, PanelStyle style, 
+			Panel(const string& name, Vector2D position, PanelStyle *style, 
 				const string& header,
 				bool visibility);
 #pragma endregion
@@ -663,7 +661,7 @@ namespace UIControls
 		/// <summary>
 		/// Main ctor
 		/// </summary>
-		Button(const string& name, Vector2D position, ButtonStyle style, const string& content,
+		Button(const string& name, Vector2D position, ButtonStyle *style, const string& content,
 			bool visibility);
 
 #pragma endregion
@@ -736,10 +734,10 @@ namespace UIControls
 #pragma region Ctor
 		TextBlock();
 
-		TextBlock(const string& name, Vector2D position, TextBlockStyle style, const string& content,
+		TextBlock(const string& name, Vector2D position, TextBlockStyle *style, const string& content,
 			bool visibility);
 
-		TextBlock(const string& name, Vector2D position, TextBlockStyle style, Printer *printer,
+		TextBlock(const string& name, Vector2D position, TextBlockStyle *style, Printer *printer,
 			bool visibility);
 #pragma endregion
 
@@ -778,7 +776,7 @@ namespace UIControls
 	public:
 #pragma region Ctor
 
-		DataTable(const string& name, Vector2D position, DataTableStyle style,
+		DataTable(const string& name, Vector2D position, DataTableStyle *style,
 			const string& tableHeader,
 			bool visibility);
 
@@ -786,7 +784,7 @@ namespace UIControls
 
 #pragma region Getters
 
-		DataTableStyle* GetSyle();		
+		DataTableStyle* GetStyle();		
 
 #pragma endregion
 
@@ -825,18 +823,19 @@ namespace UIControls
 #pragma region Ctor
 		TableRow();
 
-		TableRow(const string& name, Vector2D position, TableRowStyle style,			
+		TableRow(const string& name, Vector2D position, TableRowStyle* style,			
 			bool visibility);
 #pragma endregion
 
 #pragma region CRUD Functions
-		void AddUIControl(UIControl *control );
+		void AddUIControl(UIControl *control);
 
 		void RemoveUIControl(const string& elemName);
 
 		void RemoveUIControl(const long int &id);
 
-		UIControl* GetUIControls(size_t& size);
+		vector<UIControl*> &GetAllCells();
+
 #pragma endregion
 
 		void Render() override;
@@ -847,7 +846,7 @@ namespace UIControls
 #pragma region Getters
 
 		TableRowStyle* GetStyle();
-
+		
 #pragma endregion
 
 #pragma region Setters

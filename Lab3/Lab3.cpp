@@ -36,7 +36,31 @@ bool CheckNumber(const string& str)
 
 void ModifyOutputStream(ostream& ostream)
 {
-	ostream << setiosflags(ios_base::fixed) << ostream.precision(4);
+	ostream.precision(4);
+
+	ostream << setiosflags(ios_base::fixed);
+}
+
+void ModifyOutputStreamForNummbers(ostream& ostream)
+{
+	ostream.precision(0);	
+}
+
+
+float Function(float x1, float a, float b, float c)
+{
+	if (x1 + 5 < 0 && c == 0)
+	{
+		return (1 / (a * x1)) - b;
+	}
+	else if (x1 + 5 > 0 && c != 0)
+	{
+		return (x1 - a) / x1;
+	}
+	else
+	{
+		return (10 * x1) / (c - 4);
+	}
 }
 
 int main()
@@ -90,7 +114,7 @@ int main()
 
 #pragma endregion
 
-#pragma region Lab 4
+#pragma region Lab 4 Test 
 
 	ConsoleFuncs::Init(console);
 
@@ -100,99 +124,114 @@ int main()
 
 #pragma region Styles
 
-	TextBlockStyle cellStyle = TextBlockStyle("txtBlStyle", 5, 6);
+	TextBlockStyle cellStyle = TextBlockStyle("txtBlStyle", 20, 6);
 
-	TableRowStyle tablerowStyle = TableRowStyle("TableRowStyle", 0, 0, 1);
+	TableRowStyle tablerowStyle = TableRowStyle("TableRowStyle", 1);
 
-	DataTableStyle dataTableStyle = DataTableStyle("DataTblStyle", 0, 0, 1,
-		Vector2D(1, 1));
+	DataTableStyle dataTableStyle = DataTableStyle("DataTblStyle", 1,
+		Vector2D(5, 2));
 
 #pragma endregion
 
 #pragma region Get User Input Block
 
-	float startAngle = 0;
-
-	float endAngle = 0;
-
-	float step = 0;
-
-	auto startStr = ConsoleFuncs::Input("Enter the start angle value : ", Colors::GREEN,
+	float a = 0, b = 0, c = 0, x1 = 0, x2 = 0, dx = 0;
+	
+	auto Astr = ConsoleFuncs::Input("Enter the a value : ", Colors::GREEN,
 		CheckNumber);
 
-	startAngle = stof(startStr);
+	a = stof(Astr);
 
-	auto endStr = ConsoleFuncs::Input("Enter the end angle vaue: ", Colors::GREEN,
+	auto bstr = ConsoleFuncs::Input("Enter the b vaue: ", Colors::GREEN,
 		CheckNumber);
 
-	endAngle = stof(endStr);
+	b = stof(bstr);
 
-	auto stepStr = ConsoleFuncs::Input("Enter the step value: ", Colors::GREEN,
+	auto cstr = ConsoleFuncs::Input("Enter the c vaue: ", Colors::GREEN,
 		CheckNumber);
 
-	step = stof(stepStr);
+	c = stof(cstr);
+
+	auto x1str = ConsoleFuncs::Input("Enter the x1 vaue: ", Colors::GREEN,
+		CheckNumber);
+
+	x1 = stof(x1str);
+
+	auto x2str = ConsoleFuncs::Input("Enter the x2 vaue: ", Colors::GREEN,
+		CheckNumber);
+
+	x2 = stof(x2str);
+
+	auto dxStr = ConsoleFuncs::Input("Enter the dx value: ", Colors::GREEN,
+		CheckNumber);
+
+	dx = stof(dxStr);
 
 #pragma endregion
 
 #pragma region Build Data Table
 
-	string Tablemsg = "Sine and Cosine Table.\n" + string("Start Angle: ") + startStr +
-		string("End Angle: ") + endStr;
+	string Tablemsg = "Values of F(x).\n" + string("X1: ") + x1str +
+		string("X2: ") + x2str + "a: " + Astr + "b: " + bstr + "c: " + cstr
+		+ "dx: " + dxStr;
 
 #pragma endregion
 
-	DataTable table = DataTable("table", Vector2D(), dataTableStyle, Tablemsg, true);
+	DataTable table = DataTable("table", Vector2D(2,3), &dataTableStyle, Tablemsg, true);
 
 	// 1 Table Row
 
-	TextBlock sineValue = TextBlock("sineValue", Vector2D(), cellStyle, "Sine Value:", true);
+	TextBlock number = TextBlock("number", Vector2D(), &cellStyle, "Number:", true);
 
-	TextBlock cosineValue = TextBlock("cosineValue", Vector2D(), cellStyle, "Cosine Value:", true);
+	TextBlock argument = TextBlock("argument", Vector2D(), &cellStyle, "Argument X:", true);
 
-	TextBlock AngleValue = TextBlock("AngleValue", Vector2D(), cellStyle, "Angle Value:", true);
+	TextBlock funcValue = TextBlock("funcValue", Vector2D(), &cellStyle, "F(X) Value:", true);
 
-	TableRow rowHeaders = TableRow("Headeers", Vector2D(), tablerowStyle, true);
+	TableRow rowHeaders = TableRow("Headers", Vector2D(), &tablerowStyle, true);
 
-	rowHeaders.AddUIControl(&AngleValue);
+	rowHeaders.AddUIControl(&number);
 
-	rowHeaders.AddUIControl(&sineValue);
+	rowHeaders.AddUIControl(&argument);
 
-	rowHeaders.AddUIControl(&cosineValue);
+	rowHeaders.AddUIControl(&funcValue);
 
 	table.AddTableRow(&rowHeaders);
 
 	int i = 0;
 
-	const int n = (round(endAngle / step) + 1);
+	const int n = (round(x2 / dx) + 1);
 
 	TableRow* rows = new TableRow[n];
 							
-	while (startAngle <= endAngle)//O(n)
+	while (x1 <= x2)//O(n)
 	{				
 		rows[i].Build("row" + std::to_string(i + 2), Vector2D(), tablerowStyle, true);
 
-		rows[i].AddUIControl(new TextBlock("Angle" + i, Vector2D(), cellStyle,
-			new FloatPrecisionPrinter(startAngle, ModifyOutputStream)
+		rows[i].AddUIControl(new TextBlock("Number" + i, Vector2D(), &cellStyle,
+			new FloatPrecisionPrinter(i + 1, ModifyOutputStreamForNummbers)
 			, true));
 		
-		rows[i].AddUIControl(new TextBlock("sine" + i, Vector2D(), cellStyle,
-			new FloatPrecisionPrinter(std::sin(startAngle * (M_PI / 180)), ModifyOutputStream)
+		rows[i].AddUIControl(new TextBlock("Argument" + i, Vector2D(), &cellStyle,
+			new FloatPrecisionPrinter(x1, ModifyOutputStream)
 			, true));
 		
-		rows[i].AddUIControl(new TextBlock("cos" + i, Vector2D(), cellStyle,
-			new FloatPrecisionPrinter(std::cos(startAngle * (M_PI / 180)), ModifyOutputStream)
+		rows[i].AddUIControl(new TextBlock("FxValue" + i, Vector2D(), &cellStyle,
+			new FloatPrecisionPrinter(Function(x1, a, b, c), ModifyOutputStream)
 			, true));
 		
 		i++;
 
-		startAngle += step;				
+		x1 += dx;				
 	}
 
-	
+	for (size_t i = 0; i < n; i++)//O(n)
+	{
+		table.AddTableRow(&rows[i]);
+	}
 
 #pragma endregion
 
-
+	controller->AddUIControl(&table);
 	//Draw UI
 	controller->Draw();
 

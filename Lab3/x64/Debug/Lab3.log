@@ -1,8 +1,7 @@
 ﻿  Lab3.cpp
 D:\C++ Projects\KHAI\Practice\Lab3\includes\Console.h(89,38): warning C4190: для "Input" задана С-связывание, но возвращаемый тип UDT "std::basic_string<char,std::char_traits<char>,std::allocator<char>>" несовместим с языком Си
 D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\xstring(5186): message : см. объявление "std::basic_string<char,std::char_traits<char>,std::allocator<char>>"
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\Lab3.cpp(166,40): warning C4244: инициализация: преобразование "float" в "int", возможна потеря данных
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\Lab3.cpp(166,14): warning C4244: инициализация: преобразование "float" в "const int", возможна потеря данных
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\Lab3.cpp(179,38): warning C4244: аргумент: преобразование "double" в "const float", возможна потеря данных
-D:\C++ Projects\KHAI\Practice\Lab3\Lab3\Lab3.cpp(183,38): warning C4244: аргумент: преобразование "double" в "const float", возможна потеря данных
+D:\C++ Projects\KHAI\Practice\Lab3\Lab3\Lab3.cpp(202,32): warning C4244: инициализация: преобразование "float" в "int", возможна потеря данных
+D:\C++ Projects\KHAI\Practice\Lab3\Lab3\Lab3.cpp(202,14): warning C4244: инициализация: преобразование "float" в "const int", возможна потеря данных
+D:\C++ Projects\KHAI\Practice\Lab3\Lab3\Lab3.cpp(211,32): warning C4244: аргумент: преобразование "int" в "const float", возможна потеря данных
   Lab3.vcxproj -> D:\C++ Projects\KHAI\Practice\Lab3\x64\Debug\Lab3.exe

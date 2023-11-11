@@ -1,4 +1,5 @@
 #include"ConsoleUI.h"
+#include <iomanip>
 
 using namespace UIControls;
 
@@ -299,12 +300,12 @@ TextBlockStyle::TextBlockStyle(const string name, UShort width, UShort height,
 
 #pragma region Ctor
 
-TableRowStyle::TableRowStyle(const string name, UShort width, UShort height,
+TableRowStyle::TableRowStyle(const string name,
 	UShort horOffset, WORD brdColor,
 	WORD backColor, UShort minWidth,
 	UShort minHeight, UShort maxWidth, UShort maxHeight) :
 	m_HorOffset(horOffset),
-	Style(name, width, height, brdColor, backColor, minWidth, minHeight, maxWidth, maxHeight)
+	Style(name, 0, 0, brdColor, backColor, minWidth, minHeight, maxWidth, maxHeight)
 {
 
 }
@@ -336,7 +337,7 @@ void TableRowStyle::SetHorOffset(const UShort &horOffset)
 #pragma region Ctor
 
 DataTableStyle::DataTableStyle(
-	const string name, UShort width, UShort height,
+	const string name, 
 	UShort vertOffset,
 	Vector2D contentPos,
 	WORD brdColor,
@@ -344,7 +345,7 @@ DataTableStyle::DataTableStyle(
 	WORD Foreground,
 	UShort minWidth,
 	UShort minHeight, UShort maxWidth, UShort maxHeight
-) : m_VertOffset(vertOffset), Style(name, width, height, brdColor, backColor, 
+) : m_VertOffset(vertOffset), Style(name, 0, 0, brdColor, backColor, 
 	minWidth, minHeight, maxWidth, maxHeight),
 UIContentStyle(contentPos, Foreground) {}
 
@@ -482,9 +483,9 @@ void UIControl::Build(const string& name, Vector2D position, const string& conte
 
 #pragma region Ctors
 
-Button::Button(const string& name, Vector2D position, ButtonStyle style, const string& content,
+Button::Button(const string& name, Vector2D position, ButtonStyle *style, const string& content,
 	bool visibility)
-	: UIControl::UIControl(name, position, content, visibility, &style)
+	: UIControl::UIControl(name, position, content, visibility, style)
 {
 	
 }
@@ -543,9 +544,9 @@ long int UIControls::UIControl::m_Idlast = 0;
 
 #pragma region ctors
 
-Panel::Panel(const string& name, Vector2D position, PanelStyle style, const string& content,
+Panel::Panel(const string& name, Vector2D position, PanelStyle *style, const string& content,
 	bool visibility) 
-	:UIControl(name, position, content, visibility, &style)
+	:UIControl(name, position, content, visibility, style)
 {
 
 }
@@ -718,14 +719,14 @@ void Panel::Render()
 
 TextBlock::TextBlock() : UIControl() {}
 
-TextBlock::TextBlock(const string& name, Vector2D position, TextBlockStyle style, const string& content,
-	bool visibility) : UIControl(name, position, content, visibility, &style)
+TextBlock::TextBlock(const string& name, Vector2D position, TextBlockStyle *style, const string& content,
+	bool visibility) : UIControl(name, position, content, visibility, style)
 {
 	m_printer = nullptr;
 }
 
-TextBlock::TextBlock(const string& name, Vector2D position, TextBlockStyle style, Printer* printer,
-	bool visibility) : UIControl(name, position, "", visibility, &style)
+TextBlock::TextBlock(const string& name, Vector2D position, TextBlockStyle *style, Printer* printer,
+	bool visibility) : UIControl(name, position, "", visibility, style)
 	, m_printer(printer)
 {
 
@@ -844,7 +845,7 @@ void FloatPrecisionPrinter::Print(WORD &foreground)
 	HANDLE h = ConsoleFuncs::GetHandle();
 
 	SetConsoleTextAttribute(h, foreground);
-
+	
 	cout << m_value;
 
 	SetConsoleTextAttribute(h, *ConsoleFuncs::GetDefaultColor());
@@ -855,15 +856,14 @@ void FloatPrecisionPrinter::Print(WORD &foreground)
 
 #pragma endregion
 
-
 #pragma region TableRow
 
 #pragma region Ctor
 
 TableRow::TableRow() :UIControl() {}
 
-TableRow::TableRow(const string& name, Vector2D position, TableRowStyle style,	
-	bool visibility) : UIControl(name, position, "", visibility, &style)
+TableRow::TableRow(const string& name, Vector2D position, TableRowStyle *style,	
+	bool visibility) : UIControl(name, position, "", visibility, style)
 {
 }
 
@@ -875,6 +875,15 @@ void TableRow::AddUIControl(UIControl* control)
 {
 	if (control == nullptr)
 		return;
+
+	auto currMaxHeight = this->GetStyle()->GetHeight();
+
+	auto elemHeight = control->GetStylePtr()->GetHeight();
+
+	if (elemHeight > currMaxHeight)
+	{
+		this->GetStyle()->SetHeight(elemHeight);
+	}
 
 	m_Cells.push_back(control);	
 }
@@ -918,11 +927,9 @@ void TableRow::RemoveUIControl(const long int& id)
 		m_Cells.erase(m_Cells.begin() + index);
 }
 
-UIControl* TableRow::GetUIControls(size_t& size)
+vector<UIControl*> &TableRow::GetAllCells()
 {
-	size = m_Cells.size();
-
-	return m_Cells[0];
+	return m_Cells;
 }
 
 #pragma endregion
@@ -956,12 +963,12 @@ void TableRow::Render()
 	for (UIControl* UIctrl : m_Cells)
 	{
 		if (UIctrl == nullptr)
-			return;
+			continue;
 		
 		if (UIctrl->GetVisibility())
 		{
 			newPosition = position + Vector2D(((UIctrl->GetStylePtr()->GetWidth() + horOffset) * i), 0);
-
+			
 			UIctrl->SetPosition(newPosition);
 
 			UIctrl->Render();
@@ -992,11 +999,30 @@ void TableRow::Build(const string& name, Vector2D position, TableRowStyle style,
 
 #pragma region Ctor
 
-DataTable::DataTable(const string& name, Vector2D position, DataTableStyle style,
+DataTable::DataTable(const string& name, Vector2D position, DataTableStyle *style,
 	const string& tableHeader,
-	bool visibility) : UIControl(name, position, tableHeader, visibility, &style) {}
+	bool visibility) : UIControl(name, position, tableHeader, visibility, style) {}
 
 #pragma endregion
+
+#pragma region Getters
+
+DataTableStyle* DataTable::GetStyle()
+{
+	return reinterpret_cast<DataTableStyle*>(UIControl::GetStylePtr());
+}
+
+#pragma endregion
+
+#pragma region Setters
+
+void DataTable::SetStyle(DataTableStyle* newStyle)
+{
+	UIControl::SetStylePtr(newStyle);
+}
+
+#pragma endregion
+
 
 #pragma region CRUD Operations
 
@@ -1058,15 +1084,134 @@ void DataTable::RemoveTableRow(const long int &id)
 
 void DataTable::Render() 
 {
+	//Get Data Table Style 
+
+	DataTableStyle *style = this->GetStyle();
+
+	//Calculate width of the content(amount of "\n" + 1)
+
+	int content_height = 1;
 	
+	string content = this->GetContent();
+
+	vector<string> ContetntCollection;
+
+	for (char c : content)//O(n)
+	{
+		if (c == '\n')
+			content_height++;
+	}
+
+	for (size_t i = 0; i < content_height; i++)
+	{
+		ContetntCollection.push_back(string());
+	}
+
+	string temp = content + "\n";
+
+	size_t j = 0;
+
+	size_t k = 0;
+
+	while (j < content_height)
+	{
+		for (size_t i = k; i < temp.size(); i++)
+		{
+			if (temp[i] == '\n')
+			{
+				k = i + 1;
+				break;
+			}
+			else
+			{
+				ContetntCollection[j] += temp[i];
+			}
+		}
+
+		j++;
+	}
+	
+	Vector2D tablHeaderPos = style->GetContentPosition();
+
+	auto distTotheEnd = 5;
+
+	auto distTotheRight = 5;
+	
+	auto rowsHeight = 0;
+
+	auto VertOffset = style->GetVertOffset();
+
+	for (auto Table_Row : m_tableRows)
+	{
+		rowsHeight += Table_Row->GetStylePtr()->GetHeight() + VertOffset;
+	}
+	
+	auto HorOffset = m_tableRows[0]->GetStyle()->GetHorOffset();
+
+	auto Tableheight = style->GetContentPosition()[1] + content_height + 
+		rowsHeight + VertOffset*2 + 6 + distTotheEnd;
+		
+	auto cellsCount = m_tableRows[0]->GetAllCells().size();
+
+	auto elemWidth = 0;
+
+	for (auto UICtrl : m_tableRows[0]->GetAllCells())
+	{
+		elemWidth += UICtrl->GetStylePtr()->GetWidth();
+	}
+
+	auto Tablewidth = distTotheRight * 2 + elemWidth + HorOffset * cellsCount-1;
+
+	auto position = this->GetPosition();
+
+	ConsoleGraphics::DrawRect(position[0], position[1], Tablewidth, Tableheight,
+		style->GetBrdColor(), style->GetBackColor());
+
+	Vector2D CurrPosition = position + style->GetContentPosition();
+	
+	for (size_t i = 0; i < content_height; i++)
+	{
+		ConsoleFuncs::SetCursorPosition(CurrPosition[0], CurrPosition[1]);
+
+		ConsoleFuncs::PrintColorMsg(ContetntCollection[i], style->GetForeground());
+
+		CurrPosition += Vector2D(0, 1);
+	}
+
+	CurrPosition += Vector2D(0, VertOffset);
+
+	CurrPosition.SetX(position[0] + distTotheRight);
+	
+	int i = 0;
+
+	Vector2D newPosition;
+
+	for (TableRow* row : m_tableRows)
+	{
+		if (row == nullptr)
+			continue;
+
+		if (row->GetVisibility())
+		{
+			newPosition = CurrPosition + Vector2D(0, (VertOffset + row->GetStyle()->GetHeight()/2) * i);
+
+			ConsoleFuncs::SetCursorPosition(newPosition[0], newPosition[1]);
+
+			row->SetPosition(newPosition);
+
+			row->Render();
+
+			ConsoleFuncs::SetCursorPosition(newPosition[0], newPosition[1]);
+		}
+
+		i++;
+	}
 }
 
 #pragma endregion
 
 
 #pragma endregion
-
-
 
 #pragma endregion
 
